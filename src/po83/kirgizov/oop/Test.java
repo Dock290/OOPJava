@@ -1,7 +1,7 @@
 package po83.kirgizov.oop;
 
 public class Test {
-    public static void Main(String[] args) {
-        System.out.println("Готово");
+    public static void main (String[] args) {
+        System.out.println("Готово!");
     }
 }
