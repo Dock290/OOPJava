@@ -1,107 +1,116 @@
 package po83.kirgizov.oop.model;
 
 public class AccountManager {
-    private Individual[] individuals;
+    private Client[] clients;
     int size;
 
     public AccountManager() {
-        individuals = new Individual[16];
+        clients = new Client[16];
         size = 16;
     }
 
     public AccountManager(int size) {
-        individuals = new Individual[size];
+        clients = new Client[size];
         this.size = size;
     }
 
-    public AccountManager(Individual[] individuals) {
-        size = individuals.length;
-        this.individuals = new Individual[size];
-        for (int i = 0; i < size; ++i) {
-            this.individuals[i] = new Individual(individuals[i].getAccounts());
-        }
+    public AccountManager(Client[] clients) {
+        size = clients.length;
+        this.clients = clients;
     }
 
 
-    public boolean add(Individual individual) {
+    public boolean add(Client client) {
         for (int i = 0; i < size; ++i) {
-            if (individuals[i] == null) {
-                individuals[i] = individual;
+            if (clients[i] == null) {
+                clients[i] = client;
                 return true;
             }
         }
         return false;
     }
 
-    public boolean add(int index, Individual individual) {
-        if (individuals[index] == null) {
-            individuals[index] = individual;
+    public boolean add(int index, Client client) {
+        if (clients[index] == null) {
+            clients[index] = client;
             return true;
         } else {
             return false;
         }
     }
 
-    public Individual get(int index) {
-        return individuals[index];
+    public Client get(int index) {
+        return clients[index];
     }
 
-    public Individual set(int index, Individual account) {
-        Individual changedAccount = individuals[index];
-        individuals[index] = account;
-        return changedAccount;
+    public Client set(int index, Client client) {
+        Client changedClient = clients[index];
+        clients[index] = client;
+        return changedClient;
     }
 
-    public Individual remove(int index) {
-        Individual changedAccount = individuals[index];
-        individuals[index] = null;
-        return changedAccount;
+    public Client remove(int index) {
+        Client changedClient = clients[index];
+        clients[index] = null;
+        return changedClient;
     }
 
     int getSize() {
         return size;
     }
 
-    public Individual[] getIndividuals() {
+    public Client[] getClients() {
         int resSize = 0;
 
         for (int i = 0; i < size; ++i) {
-            if (individuals[i] != null) {
+            if (clients[i] != null) {
                 resSize++;
             }
         }
 
-        Individual[] result = new Individual[resSize];
+        Client[] result = new Client[resSize];
         int j = 0;
 
         for (int i = 0; i < size; ++i) {
-            if (individuals[i] != null) {
-                result[j++] = new Individual(individuals[i].getAccounts());
+            if (clients[i] != null) {
+                result[j++] = clients[i];
             }
         }
 
         return result;
     }
 
-    public Individual[] sortedIndividualsByBalance() {
-        Individual[] result = getIndividuals();
+    public Client[] sortedClientsByBalance() {
+        Client[] result = getClients();
+        int[] resultBalance = new int[result.length];
+
+        for (int i = 0; i < result.length; ++i) {
+            for (Account account : result[i].getAccounts()) {
+                resultBalance[i] += account.getBalance();
+            }
+        }
 
         if (result.length == 0) {
             return null;
         }
 
-        Individual buffer;
+        Client bufferClient;
+        int bufferBalance;
         boolean isSorted = false;
 
         while (!isSorted) {
             for (int i = 0; i < result.length - 1; i++) {
                 isSorted = true;
-                if (result[i].totalBalance() > result[i + 1].totalBalance()) {
+                if (resultBalance[i] > resultBalance[i + 1]) {
                     isSorted = false;
 
-                    buffer = result[i];
+                    bufferClient = result[i];
                     result[i] = result[i + 1];
-                    result[i + 1] = buffer;
+                    result[i + 1] = bufferClient;
+
+                    bufferBalance = resultBalance[i];
+                    resultBalance[i] = resultBalance[i + 1];
+                    resultBalance[i + 1] = bufferBalance;
                 }
             }
         }
@@ -113,7 +122,7 @@ public class AccountManager {
         Account[] buffer;
 
         for (int i = 0; i < size; ++i) {
-            buffer = individuals[i].getAccounts();
+            buffer = clients[i].getAccounts();
             for (int j = 0; j < buffer.length; ++j) {
                 if (buffer[i].getNumber().equals(accountNumber)) {
                     return buffer[i];
@@ -128,7 +137,7 @@ public class AccountManager {
         Account[] buffer;
 
         for (int i = 0; i < size; ++i) {
-            buffer = individuals[i].accounts;
+            buffer = clients[i].getAccounts();
             for (int j = 0; j < buffer.length; ++j) {
                 if (buffer[i].getNumber().equals(accountNumber)) {
                     Account result = buffer[i];
@@ -145,10 +154,10 @@ public class AccountManager {
         Account result;
 
         for (int i = 0; i < size; ++i) {
-            for (int j = 0; j < individuals[i].getSize(); ++j) {
-                if (individuals[i].getAccounts()[j].getNumber().equals(accountNumber)) {
-                    result = individuals[i].getAccounts()[j];
-                    individuals[i].getAccounts()[j] = account;
+            for (int j = 0; j < clients[i].getSize(); ++j) {
+                if (clients[i].getAccounts()[j].getNumber().equals(accountNumber)) {
+                    result = clients[i].getAccounts()[j];
+                    clients[i].getAccounts()[j] = account;
                     return result;
                 }
             }
