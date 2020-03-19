@@ -4,20 +4,20 @@ public class Individual implements Client {
     private String name;
     private int size;
     protected Account[] accounts;
-    private int creditScores;
+    private int creditScore;
 
     public Individual() {
         accounts = new Account[16];
         size = 16;
         name = "";
-        creditScores = 0;
+        creditScore = 0;
     }
 
     public Individual(int size) {
         accounts = new Account[size];
         this.size = size;
         name = "";
-        creditScores = 0;
+        creditScore = 0;
     }
 
     public Individual(Account[] accounts) {
@@ -29,7 +29,7 @@ public class Individual implements Client {
         }
 
         name = "";
-        creditScores = 0;
+        creditScore = 0;
     }
 
 
@@ -68,7 +68,7 @@ public class Individual implements Client {
     }
 
     public void addCreditScores(int creditScores) {
-        this.creditScores += creditScores;
+        this.creditScore += creditScores;
     }
 
     public Account get(int index) {
@@ -84,8 +84,18 @@ public class Individual implements Client {
         return null;
     }
 
-    public int getCreditScores() {
-        return creditScores;
+    public int getCreditScore() {
+        return creditScore;
+    }
+
+    public int indexOf(Account account) {
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i].equals(account)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     public boolean hasAccount(String accountNumber) {
@@ -123,6 +133,7 @@ public class Individual implements Client {
                 if (accounts[i].getNumber().equals(accountNumber)) {
                     changedAccount = accounts[i];
                     accounts[i] = null;
+                    i--;
                 }
             }
 
@@ -131,6 +142,23 @@ public class Individual implements Client {
             }
         }
         return changedAccount;
+    }
+
+    @Override
+    public boolean remove(Account account) {
+        boolean isDeleted = false;
+        for (int i = 0; i < size; ++i) {
+            if (!isDeleted) {
+                if (accounts[i].equals(account)) {
+                    accounts[i] = null;
+                    isDeleted = true;
+                    i--;
+                }
+            } else if (i < size - 1) {
+                accounts[i] = accounts[i + 1];
+            }
+        }
+        return isDeleted;
     }
 
     public int getSize() {
@@ -154,9 +182,11 @@ public class Individual implements Client {
     public Account[] sortedAccountsByBalance() {
         Account[] result = new Account[size];
 
+        int j = 0;
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
-                result[i] = accounts[i];
+                result[j] = accounts[i];
+                j++;
             }
         }
 
@@ -164,9 +194,9 @@ public class Individual implements Client {
         boolean isSorted = false;
 
         while (!isSorted) {
-            for (int i = 0; i < size; i++) {
-                isSorted = true;
-                if (result[i] != null) {
+            for (int i = 0; i < size - 1; i++) {
+                if (result[i] != null && result[i + 1] != null) {
+                    isSorted = true;
                     if (result[i].getBalance() > result[i + 1].getBalance()) {
                         isSorted = false;
 
@@ -212,6 +242,19 @@ public class Individual implements Client {
         return result;
     }
 
+    @Override
+    public double debtTotal() {
+        double result = 0;
+
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i].getClass() == CreditAccount.class) {
+                result += accounts[i].getBalance();
+            }
+        }
+
+        return result;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -229,5 +272,46 @@ public class Individual implements Client {
         }
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("Individual:\n" + "name: " + name + "\ncreditScore: " + creditScore + "\n");
+        for (Account a : accounts) {
+            if (a != null) {
+                result.append(a.toString()).append("\n");
+            }
+        }
+        result.append("total: ").append(totalBalance());
+        return result.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode() ^ creditScore;
+
+        for (Account a : accounts) {
+            result ^= a.hashCode();
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if ((getClass() == o.getClass()) && (size == ((Individual) o).getSize())) {
+            for (int i = 0; i < size; i++) {
+                if (!accounts[i].equals(((Individual) o).accounts[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

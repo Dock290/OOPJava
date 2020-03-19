@@ -150,6 +150,33 @@ public class AccountManager {
         return null;
     }
 
+    public boolean remove(Client client) {
+        boolean isDeleted = false;
+
+        for (int i = 0; i < size; ++i) {
+            if (!isDeleted) {
+                if (clients[i].equals(client)) {
+                    clients[i] = null;
+                    isDeleted = true;
+                }
+            } else if (i < size - 1) {
+                clients[i] = clients[i + 1];
+            }
+        }
+
+        return isDeleted;
+    }
+
+    public int indexOf(Client client) {
+        for (int i = 0; i < size; ++i) {
+            if (clients[i].equals(client)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     public Account setAccount(String accountNumber, Account account) {
         Account result;
 
@@ -213,5 +240,16 @@ public class AccountManager {
         }
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (Client c : clients) {
+            if (c != null) {
+                result.append(c.toString()).append("\n\n");
+            }
+        }
+        return result.toString();
     }
 }
