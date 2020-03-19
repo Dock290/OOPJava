@@ -1,6 +1,6 @@
 package po83.kirgizov.oop.model;
 
-public class CreditAccount extends AbstractAccount implements Credit{
+public class CreditAccount extends AbstractAccount implements Credit, Cloneable {
     private double AnnualPercentageRate;
 
     public CreditAccount() {
@@ -19,5 +19,28 @@ public class CreditAccount extends AbstractAccount implements Credit{
 
     public void setAnnualPercentageRate(double AnnualPercentageRate) {
         this.AnnualPercentageRate = AnnualPercentageRate;
+    }
+
+    @Override
+    public String toString() {
+        return "Credit account - " + "number: " + getNumber()  + " balance: " + getBalance() + " Annual Percentage Rate: " + AnnualPercentageRate;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 71 * String.format("%f", AnnualPercentageRate).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return ((o.getClass() == this.getClass()) &&
+                (getNumber().equals(((CreditAccount)o).getNumber())) &&
+                (getBalance() == (((CreditAccount)o).getBalance())) &&
+                (getAnnualPercentageRate() == (((CreditAccount)o).getAnnualPercentageRate())));
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

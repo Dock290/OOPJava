@@ -11,10 +11,10 @@ public interface Client {
     Account get(int index);
     Account get(String accountNumber);
 
-    int getCreditScores();
+    int getCreditScore();
 
     default ClientStatus getStatus() {
-        int creditScores = getCreditScores();
+        int creditScores = getCreditScore();
 
         if (creditScores >= 5)
         {
@@ -38,18 +38,25 @@ public interface Client {
         }
     }
 
+    int indexOf(Account account);
+
     int getSize();
 
     boolean hasAccount(String accountNumber);
 
     Account remove(int index);
     Account remove(String accountNumber);
+    boolean remove(Account account);
 
     Account[] getAccounts();
     Account[] sortedAccountsByBalance();
 
     Account[] getCreditAccounts();
 
+    double debtTotal();
+
     void setName(String name);
     String getName();
+
+    double totalBalance();
 }

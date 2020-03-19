@@ -6,7 +6,8 @@ public class Test {
     public static void main(String[] args) {
         //lab1tests();
         //lab2tests();
-        lab3tests();
+        //lab3tests();
+        lab4tests();
 
         System.out.println("Готово!");
     }
@@ -99,7 +100,7 @@ public class Test {
         System.out.println();
     }*/
 
-    /*public static void lab2tests() {
+    public static void lab2tests() {
         DebitAccount a1 = new DebitAccount();
         a1.setNumber("1234");
         a1.setBalance(7533);
@@ -150,7 +151,9 @@ public class Test {
 
         e1.add(new DebitAccount("1000", 0));
 
-        accounts = i1.getAccounts();
+        System.out.println("I1 Sorted:");
+
+        accounts = i1.sortedAccountsByBalance();
         for (Account element : accounts) {
             e1.add(element);
         }
@@ -226,7 +229,7 @@ public class Test {
             }
             System.out.println();
         }
-    }*/
+    }
 
     public static void lab3tests() {
         DebitAccount da1 = new DebitAccount();
@@ -287,7 +290,7 @@ public class Test {
                 System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
             }
         }
-        System.out.println("Status: " + i1.getStatus() + " Scores: " + i1.getCreditScores());
+        System.out.println("Status: " + i1.getStatus() + " Scores: " + i1.getCreditScore());
 
         Individual i2 = new Individual(2);
         i2.setName("Vasiliy");
@@ -305,7 +308,7 @@ public class Test {
                 System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
             }
         }
-        System.out.println("Status: " + i2.getStatus() + " Scores: " + i2.getCreditScores());
+        System.out.println("Status: " + i2.getStatus() + " Scores: " + i2.getCreditScore());
 
         Entity e1 = new Entity("Anatoly");
 
@@ -324,7 +327,7 @@ public class Test {
                 System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
             }
         }
-        System.out.println("Status: " + e1.getStatus() + " Scores: " + e1.getCreditScores());
+        System.out.println("Status: " + e1.getStatus() + " Scores: " + e1.getCreditScore());
 
         // Test AccountManager
 
@@ -385,5 +388,47 @@ public class Test {
         }
 
         System.out.println();
+    }
+
+    public static void lab4tests() {
+        DebitAccount da1 = new DebitAccount("1000", 1000);
+
+        System.out.println("\nDebit Account 1:");
+        System.out.println(da1.toString());
+
+        CreditAccount ca1 = new CreditAccount("1010", 2345, 90);
+
+        System.out.println("\nCredit Account 1:");
+        System.out.println(ca1.toString());
+
+        Individual i1 = new Individual();
+        i1.setName("Konstantine");
+
+        i1.add(da1);
+        i1.add(ca1);
+        i1.add(new DebitAccount("1001", 1000));
+        i1.add(new CreditAccount("1011", 735, 12.76));
+
+        System.out.println("\nIndividual 1:");
+        System.out.println(i1.toString());
+
+        Entity e1 = new Entity("Dmitri");
+        e1.addCreditScores(-1);
+
+        e1.add(new DebitAccount("1002", 74));
+        e1.add(new CreditAccount("1012", 86000, 7));
+        e1.add(new DebitAccount("1003", 5000));
+        e1.add(new CreditAccount("1013", 4900, 12.76));
+
+        System.out.println("\nEntity 1:");
+        System.out.println(e1.toString());
+
+        AccountManager am = new AccountManager();
+
+        am.add(i1);
+        am.add(e1);
+
+        System.out.println("\nAccount manager:");
+        System.out.println(am.toString());
     }
 }

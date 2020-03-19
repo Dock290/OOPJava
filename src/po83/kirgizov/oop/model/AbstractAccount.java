@@ -1,6 +1,6 @@
 package po83.kirgizov.oop.model;
 
-public abstract class AbstractAccount implements Account{
+public abstract class AbstractAccount implements Account, Cloneable{
     private String number;
     private double balance;
 
@@ -28,5 +28,24 @@ public abstract class AbstractAccount implements Account{
 
     public double getBalance() {
         return balance;
+    }
+
+    public String toString() {
+        return "number: " + number + " balance: " + balance;
+    }
+
+    @Override
+    public int hashCode() {
+        return number.hashCode() * String.format("%f", balance).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o.getClass() == this.getClass() && number.equals(((AbstractAccount)o).number) && balance == (((AbstractAccount)o).balance);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
