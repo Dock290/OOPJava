@@ -5,7 +5,8 @@ import po83.kirgizov.oop.model.*;
 public class Test {
     public static void main(String[] args) {
         //lab1tests();
-        lab2tests();
+        //lab2tests();
+        lab3tests();
 
         System.out.println("Готово!");
     }
@@ -98,7 +99,7 @@ public class Test {
         System.out.println();
     }*/
 
-    public static void lab2tests() {
+    /*public static void lab2tests() {
         DebitAccount a1 = new DebitAccount();
         a1.setNumber("1234");
         a1.setBalance(7533);
@@ -225,5 +226,164 @@ public class Test {
             }
             System.out.println();
         }
+    }*/
+
+    public static void lab3tests() {
+        DebitAccount da1 = new DebitAccount();
+
+        System.out.println("\nDebit Account 1\n");
+        System.out.println(da1.getNumber() + " " + da1.getBalance());
+
+        da1.setNumber("1000");
+        da1.setBalance(1000);
+
+        System.out.println("\nDebit Account 1\n");
+        System.out.println(da1.getNumber() + " " + da1.getBalance());
+
+        DebitAccount da2 = new DebitAccount("1001", 200.15);
+
+        System.out.println("\nDebit Account 2\n");
+        System.out.println(da2.getNumber() + " " + da2.getBalance());
+
+        CreditAccount ca1 = new CreditAccount();
+
+        System.out.println("\nCredit Account 1\n");
+        System.out.println(ca1.getNumber() + " " + ca1.getBalance() + " " + ca1.getAnnualPercentageRate());
+
+        ca1.setNumber("2000");
+        ca1.setBalance(2100);
+        ca1.setAnnualPercentageRate(25);
+
+        System.out.println("\nCredit Account 1\n");
+        System.out.println(ca1.getNumber() + " " + ca1.getBalance() + " " + ca1.getAnnualPercentageRate());
+
+        CreditAccount ca2 = new CreditAccount("2001", 100.15, 75);
+
+        System.out.println("\nCredit Account 2\n");
+        System.out.println(ca2.getNumber() + " " + ca2.getBalance() + " " + ca2.getAnnualPercentageRate());
+
+        // Test Individual & Entity
+
+        Account[] accounts;
+
+        Individual i1 = new Individual();
+        i1.setName("Dmitriy");
+
+        i1.add(ca1);
+        i1.add(new DebitAccount("3000", 87.4));
+        i1.add(ca2);
+        i1.add(new DebitAccount("3001", 27.908));
+        i1.add(new DebitAccount("3002", 93));
+        i1.add(new CreditAccount("5673", -456.3, 50));
+        i1.addCreditScores(-10);
+
+        accounts = i1.getAccounts();
+
+        System.out.println("\nIndividual 1\n");
+        for (Account a : accounts) {
+            if (a.getClass() == DebitAccount.class) {
+                System.out.println(a.getNumber() + " " + a.getBalance());
+            } else if (a.getClass() == CreditAccount.class) {
+                System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
+            }
+        }
+        System.out.println("Status: " + i1.getStatus() + " Scores: " + i1.getCreditScores());
+
+        Individual i2 = new Individual(2);
+        i2.setName("Vasiliy");
+
+        i2.add(da1);
+        i2.add(da2);
+
+        accounts = i2.getAccounts();
+
+        System.out.println("\nIndividual 2\n");
+        for (Account a : accounts) {
+            if (a.getClass() == DebitAccount.class) {
+                System.out.println(a.getNumber() + " " + a.getBalance());
+            } else if (a.getClass() == CreditAccount.class) {
+                System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
+            }
+        }
+        System.out.println("Status: " + i2.getStatus() + " Scores: " + i2.getCreditScores());
+
+        Entity e1 = new Entity("Anatoly");
+
+        e1.add(new CreditAccount("7374", 320, 10));
+        e1.add(new CreditAccount("7734", 520, 10));
+        e1.add(new CreditAccount("7373", 380, 10));
+        e1.addCreditScores(5);
+
+        accounts = e1.getAccounts();
+
+        System.out.println("\nEntity 1\n");
+        for (Account a : accounts) {
+            if (a.getClass() == DebitAccount.class) {
+                System.out.println(a.getNumber() + " " + a.getBalance());
+            } else if (a.getClass() == CreditAccount.class) {
+                System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
+            }
+        }
+        System.out.println("Status: " + e1.getStatus() + " Scores: " + e1.getCreditScores());
+
+        // Test AccountManager
+
+        Client[] clients;
+
+        AccountManager am = new AccountManager();
+
+        am.add(i1);
+        am.add(i2);
+        am.add(e1);
+
+        clients = am.getClients();
+
+        System.out.println("\nAccount Manager: all:");
+        for (Client client : clients) {
+            System.out.println(client.getName());
+            accounts = client.getAccounts();
+            for (Account a : accounts) {
+                if (a.getClass() == DebitAccount.class) {
+                    System.out.println(a.getNumber() + " " + a.getBalance());
+                } else if (a.getClass() == CreditAccount.class) {
+                    System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
+                }
+            }
+            System.out.println();
+        }
+
+        clients = am.getDebtors();
+
+        System.out.println("Account Manager: debtors:");
+        for (Client client : clients) {
+            System.out.println(client.getName());
+            accounts = client.getAccounts();
+            for (Account a : accounts) {
+                if (a.getClass() == DebitAccount.class) {
+                    System.out.println(a.getNumber() + " " + a.getBalance());
+                } else if (a.getClass() == CreditAccount.class) {
+                    System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
+                }
+            }
+            System.out.println();
+        }
+
+        clients = am.getWickedDebtors();
+
+        System.out.println("Account Manager: wicked debtors:");
+        for (Client client : clients) {
+            System.out.println(client.getName());
+            accounts = client.getAccounts();
+            for (Account a : accounts) {
+                if (a.getClass() == DebitAccount.class) {
+                    System.out.println(a.getNumber() + " " + a.getBalance());
+                } else if (a.getClass() == CreditAccount.class) {
+                    System.out.println(a.getNumber() + " " + a.getBalance() + " " + ((CreditAccount) a).getAnnualPercentageRate());
+                }
+            }
+            System.out.println();
+        }
+
+        System.out.println();
     }
 }

@@ -1,20 +1,23 @@
 package po83.kirgizov.oop.model;
 
 public class Individual implements Client {
-    String name;
-    int size;
+    private String name;
+    private int size;
     protected Account[] accounts;
+    private int creditScores;
 
     public Individual() {
         accounts = new Account[16];
         size = 16;
         name = "";
+        creditScores = 0;
     }
 
     public Individual(int size) {
         accounts = new Account[size];
         this.size = size;
         name = "";
+        creditScores = 0;
     }
 
     public Individual(Account[] accounts) {
@@ -26,6 +29,7 @@ public class Individual implements Client {
         }
 
         name = "";
+        creditScores = 0;
     }
 
 
@@ -63,6 +67,10 @@ public class Individual implements Client {
         }
     }
 
+    public void addCreditScores(int creditScores) {
+        this.creditScores += creditScores;
+    }
+
     public Account get(int index) {
         return accounts[index];
     }
@@ -74,6 +82,10 @@ public class Individual implements Client {
             }
         }
         return null;
+    }
+
+    public int getCreditScores() {
+        return creditScores;
     }
 
     public boolean hasAccount(String accountNumber) {
@@ -94,8 +106,7 @@ public class Individual implements Client {
     public Account remove(int index) {
         Account changedAccount = null;
 
-        if (index < size)
-        {
+        if (index < size) {
             changedAccount = accounts[index];
             accounts[index] = null;
 
@@ -170,6 +181,31 @@ public class Individual implements Client {
         for (int i = 0; i < size; ++i) {
             if (result[i] == null) {
                 result[i] = new DebitAccount();
+            }
+        }
+
+        return result;
+    }
+
+    public Account[] getCreditAccounts() {
+        int newSize = 0;
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i] != null) {
+                if (accounts[i].getClass() == CreditAccount.class) {
+                    newSize++;
+                }
+            }
+        }
+
+        Account[] result = new Account[newSize];
+
+        int j = 0;
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i] != null) {
+                if (accounts[i].getClass() == CreditAccount.class) {
+                    result[j] = accounts[i];
+                    j++;
+                }
             }
         }
 

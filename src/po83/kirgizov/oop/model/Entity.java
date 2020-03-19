@@ -1,15 +1,17 @@
 package po83.kirgizov.oop.model;
 
 public class Entity implements Client {
-    String name;
-    int size;
-    Node head, tail;
+    private String name;
+    private int size;
+    private Node head, tail;
+    private int creditScores;
 
     public Entity(String name) {
         this.name = name;
         head = null;
         tail = null;
         size = 0;
+        creditScores = 0;
     }
 
     public Entity(String name, Account[] accounts)
@@ -27,6 +29,8 @@ public class Entity implements Client {
 
         tail = current;
         tail.next = head;
+
+        creditScores = 0;
     }
 
     private boolean addNode(Node node) {
@@ -114,6 +118,10 @@ public class Entity implements Client {
         return addNode(index, new Node(account));
     }
 
+    public void addCreditScores(int creditScores) {
+        this.creditScores += creditScores;
+    }
+
     public Account set(int index, Account account) {
         return setNode(index, account);
     }
@@ -145,6 +153,10 @@ public class Entity implements Client {
         }
 
         return null;
+    }
+
+    public int getCreditScores() {
+        return creditScores;
     }
 
     public int getSize() {
@@ -250,6 +262,33 @@ public class Entity implements Client {
         return result;
     }
 
+    public Account[] getCreditAccounts() {
+        Node current = head.next;
+
+        int newSize = 0;
+        for (int i = 0; i < size; ++i) {
+            if (current.value.getClass() == CreditAccount.class) {
+                newSize++;
+            }
+            current = current.next;
+        }
+
+        Account[] result = new Account[newSize];
+
+        current = head.next;
+
+        int j = 0;
+        for (int i = 0; i < size; ++i) {
+            if (current.value.getClass() == CreditAccount.class) {
+                result[j] = current.value;
+                j++;
+            }
+            current = current.next;
+        }
+
+        return result;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -263,8 +302,7 @@ class Node {
     Account value;
     Node next;
 
-    public Node() {
-    }
+    public Node() { }
 
     public Node(Account value) {
         this.value = value;
