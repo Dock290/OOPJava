@@ -355,11 +355,23 @@ public class Entity implements Client {
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Object result = super.clone();
+
+        ((Entity)result).head = ((Entity)result).tail = new Node();
+        ((Entity)result).head.next = ((Entity)result).tail;
+        ((Entity)result).tail.next = ((Entity)result).head;
+        ((Entity)result).size = 0;
+
+        Account[] accounts = getAccounts();
+
+        for (int i = 0; i < ((Entity)result).getSize(); ++i) {
+            ((Entity)result).add(accounts[i]);
+        }
+        return result;
     }
 }
 
-class Node {
+class Node{
     Account value;
     Node next;
 

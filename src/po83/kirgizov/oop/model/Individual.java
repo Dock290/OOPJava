@@ -312,6 +312,10 @@ public class Individual implements Client {
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Object result = super.clone();
+        for (int i = 0; i < ((Individual)result).getSize(); ++i) {
+            ((Individual)result).accounts[i] = (Account) ((AbstractAccount)accounts[i]).clone();
+        }
+        return result;
     }
 }
