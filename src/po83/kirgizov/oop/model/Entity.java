@@ -1,5 +1,8 @@
 package po83.kirgizov.oop.model;
 
+import java.util.NoSuchElementException;
+import java.util.Objects;
+
 public class Entity implements Client {
     private String name;
     private int size;
@@ -7,6 +10,8 @@ public class Entity implements Client {
     private int creditScore;
 
     public Entity(String name) {
+        Objects.requireNonNull(name, "name is null");
+
         this.name = name;
         head = null;
         tail = null;
@@ -15,6 +20,9 @@ public class Entity implements Client {
     }
 
     public Entity(String name, Account[] accounts) {
+        Objects.requireNonNull(name, "name is null");
+        Objects.requireNonNull(accounts, "accounts array is null");
+
         this.name = name;
         size = accounts.length;
 
@@ -46,8 +54,10 @@ public class Entity implements Client {
     }
 
     private boolean addNode(int index, Node node) {
-        if (index <= size) {
-            return false;
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        } else if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
         }
 
         Node current = head.next;
@@ -65,7 +75,9 @@ public class Entity implements Client {
 
     private Node getNode(int index) {
         if (index >= size) {
-            return null;
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
         }
 
         Node current = head.next;
@@ -77,6 +89,12 @@ public class Entity implements Client {
     }
 
     private Node deleteNode(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
         Node current = head;
         for (int i = 0; i < index; ++i) {
             current = current.next;
@@ -91,8 +109,12 @@ public class Entity implements Client {
 
     private Account setNode(int index, Account account) {
         if (index >= size) {
-            return null;
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
         }
+
+        Objects.requireNonNull(account, "account is null");
 
         Node current = head.next;
         for (int i = 0; i <= index; ++i) {
@@ -105,11 +127,42 @@ public class Entity implements Client {
         return buffer;
     }
 
-    public boolean add(Account account) {
+    public boolean add(Account account) throws DuplicateAccountNumberException {
+        Objects.requireNonNull(account, "account is null");
+
+        if (head == null) {
+            head = tail = new Node();
+            head.next = tail;
+        }
+
+        Node current = head.next;
+        for (int i = 0; i < size; ++i) {
+            if (current.value.getNumber().equals(account.getNumber())) {
+                throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+            }
+            current = current.next;
+        }
+
         return addNode(new Node(account));
     }
 
-    public boolean add(int index, Account account) {
+    public boolean add(int index, Account account) throws DuplicateAccountNumberException {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
+        Objects.requireNonNull(account, "account is null");
+
+        Node current = head.next;
+        for (int i = 0; i < size; ++i) {
+            if (current.value.getNumber().equals(account.getNumber())) {
+                throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+            }
+            current = current.next;
+        }
+
         return addNode(index, new Node(account));
     }
 
@@ -117,25 +170,54 @@ public class Entity implements Client {
         this.creditScore += creditScores;
     }
 
-    public Account set(int index, Account account) {
+    public Account set(int index, Account account) throws DuplicateAccountNumberException {
+        Objects.requireNonNull(account, "account is null");
+
+        Node current = head.next;
+        for (int i = 0; i < size; ++i) {
+            if (current.value.getNumber().equals(account.getNumber())) {
+                throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+            }
+            current = current.next;
+        }
+
         return setNode(index, account);
     }
 
     public Account get(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
         Node result = getNode(index);
         return result == null ? null : result.value;
     }
 
     public Account get(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("accountNumber has wrong format");
+        }
+
+        Account result = null;
+
         Node current = head.next;
 
         for (int i = 0; i < size; ++i) {
             if (current.value.getNumber().equals(accountNumber)) {
-                return current.value;
+                result = current.value;
+                break;
             }
         }
 
-        return null;
+        if (Objects.isNull(result)) {
+            throw new NoSuchElementException("account with number " + accountNumber + " not found");
+        }
+
+        return result;
     }
 
     public int getCreditScore() {
@@ -143,6 +225,8 @@ public class Entity implements Client {
     }
 
     public int indexOf(Account account) {
+        Objects.requireNonNull(account, "account is null");
+
         Node current = head.next;
 
         for (int i = 0; i < size; ++i) {
@@ -160,6 +244,12 @@ public class Entity implements Client {
     }
 
     public boolean hasAccount(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("accountNumber has wrong format");
+        }
+
         Node current = head.next;
 
         for (int i = 0; i < size; ++i) {
@@ -174,7 +264,9 @@ public class Entity implements Client {
 
     public Account remove(int index) {
         if (index >= size) {
-            return null;
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
         }
 
         Node current = head;
@@ -183,20 +275,34 @@ public class Entity implements Client {
     }
 
     public Account remove(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("accountNumber has wrong format");
+        }
+
+        Account result = null;
+
         Node current = head.next;
 
         for (int i = 0; i < size; ++i) {
             if (current.next.value.getNumber().equals(accountNumber)) {
-                return deleteNode(i).value;
+                result = deleteNode(i).value;
+                break;
             }
             current = current.next;
         }
 
-        return null;
+        if (Objects.isNull(result)) {
+            throw new NoSuchElementException("account with number " + accountNumber + " not found");
+        }
+
+        return result;
     }
 
-    @Override
     public boolean remove(Account account) {
+        Objects.requireNonNull(account, "account is null");
+
         Node current = head.next;
 
         for (int i = 0; i < size; ++i) {
@@ -276,7 +382,6 @@ public class Entity implements Client {
         return result;
     }
 
-    @Override
     public double debtTotal() {
         double result = 0;
 
@@ -293,6 +398,8 @@ public class Entity implements Client {
     }
 
     public void setName(String name) {
+        Objects.requireNonNull(name, "name is null");
+
         this.name = name;
     }
 
@@ -310,6 +417,18 @@ public class Entity implements Client {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean isNumberNotFormatted(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        return !(accountNumber.length() == 20 &&
+                accountNumber.charAt(0) == '4' &&
+                (accountNumber.charAt(1) == '0' || accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5') &&
+                accountNumber.startsWith("810", 5) &&
+                !accountNumber.startsWith("0000", 9) &&
+                !accountNumber.startsWith("0000000", 13));
     }
 
     @Override
@@ -355,7 +474,19 @@ public class Entity implements Client {
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Object result = super.clone();
+
+        ((Entity)result).head = ((Entity)result).tail = new Node();
+        ((Entity)result).head.next = ((Entity)result).tail;
+        ((Entity)result).tail.next = ((Entity)result).head;
+        ((Entity)result).size = 0;
+
+        Account[] accounts = getAccounts();
+
+        for (int i = 0; i < ((Entity)result).getSize(); ++i) {
+            ((Entity)result).addNode(new Node(accounts[i]));
+        }
+        return result;
     }
 }
 

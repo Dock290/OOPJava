@@ -1,12 +1,12 @@
 package po83.kirgizov.oop.model;
 
 public interface Client {
-    boolean add(Account account);
-    boolean add(int index, Account account);
+    boolean add(Account account) throws DuplicateAccountNumberException;
+    boolean add(int index, Account account) throws DuplicateAccountNumberException;
 
     void addCreditScores(int creditScores);
 
-    Account set(int index, Account account);
+    Account set(int index, Account account) throws DuplicateAccountNumberException;
 
     Account get(int index);
     Account get(String accountNumber);
@@ -59,4 +59,6 @@ public interface Client {
     String getName();
 
     double totalBalance();
+
+    boolean isNumberNotFormatted(String accountNumber);
 }

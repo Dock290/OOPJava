@@ -2,12 +2,16 @@ package po83.kirgizov.oop;
 
 import po83.kirgizov.oop.model.*;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+
 public class Test {
     public static void main(String[] args) {
         //lab1tests();
         //lab2tests();
         //lab3tests();
-        lab4tests();
+        //lab4tests();
+        lab5tests();
 
         System.out.println("Готово!");
     }
@@ -100,7 +104,7 @@ public class Test {
         System.out.println();
     }*/
 
-    public static void lab2tests() {
+    /*public static void lab2tests() {
         DebitAccount a1 = new DebitAccount();
         a1.setNumber("1234");
         a1.setBalance(7533);
@@ -229,9 +233,9 @@ public class Test {
             }
             System.out.println();
         }
-    }
+    }*/
 
-    public static void lab3tests() {
+    /*public static void lab3tests() {
         DebitAccount da1 = new DebitAccount();
 
         System.out.println("\nDebit Account 1\n");
@@ -239,6 +243,7 @@ public class Test {
 
         da1.setNumber("1000");
         da1.setBalance(1000);
+        System.out.println(da1.hashCode());
 
         System.out.println("\nDebit Account 1\n");
         System.out.println(da1.getNumber() + " " + da1.getBalance());
@@ -388,9 +393,9 @@ public class Test {
         }
 
         System.out.println();
-    }
+    }*/
 
-    public static void lab4tests() {
+    /*public static void lab4tests() {
         DebitAccount da1 = new DebitAccount("1000", 1000);
 
         System.out.println("\nDebit Account 1:");
@@ -430,5 +435,295 @@ public class Test {
 
         System.out.println("\nAccount manager:");
         System.out.println(am.toString());
+    }*/
+
+    static void lab5tests() {
+        System.out.println("Проверка номеров");
+
+        try {
+            DebitAccount dab = new DebitAccount("bad number", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            // (A) 45XXX - кредит, а нужен дебет
+            DebitAccount dab = new DebitAccount("45000810100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [A]");
+        }
+
+        try {
+            // (C) 811 - должно быть 810
+            DebitAccount dab = new DebitAccount("40000811100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [C]");
+        }
+
+        try {
+            // (D) 0000 - должно начинаться с 0001
+            DebitAccount dab = new DebitAccount("40000810100000000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [D]");
+        }
+
+        try {
+            // (N) 0000000 - должно начинаться с 0000001
+            DebitAccount dab = new DebitAccount("40000810100010000000", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [N]");
+        }
+
+        try {
+            // 40XXX - дебет, а нужен кредит
+            CreditAccount cab = new CreditAccount("40000810100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [A]");
+        }
+
+        try {
+            // Правильный номер 1
+            CreditAccount cag = new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [A] - контрольный тест 1 провален");
+        }
+
+        try {
+            // Правильный номер 2
+            CreditAccount cag = new CreditAccount("45000810100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " [A] - контрольный тест 2 провален");
+        }
+
+        try {
+            // Правильный номер
+            DebitAccount dag = new DebitAccount("40000810100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " - контрольный тест 3 провален");
+        }
+
+        System.out.println("\nПроверка передачи баланса");
+
+        try {
+            DebitAccount dab = new DebitAccount("40000810100010000001",
+                    -100, LocalDate.now(), LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            CreditAccount cab = new CreditAccount("45000810100010000001",
+                    100, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            DebitAccount dag = new DebitAccount("40000810100010000001",
+                    100, LocalDate.now(), LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " - контрольный тест 1 провален");
+        }
+
+        try {
+            CreditAccount cag = new CreditAccount("44000810100010000001",
+                    -100, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " - контрольный тест 2 провален");
+        }
+
+        System.out.println("\nПроверка LocalDate");
+
+        try {
+            CreditAccount cab = new CreditAccount("44000810100010000001",
+                    -100, 10, LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            CreditAccount cab = new CreditAccount("44000810100010000001",
+                    -100, 10, LocalDate.now(), LocalDate.now().minusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            CreditAccount cag = new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage() + " - контрольный тест 1 провален");
+        }
+
+        System.out.println("\nПроверка величины и даты следующего платежа");
+
+        try {
+            CreditAccount cab = new CreditAccount("44000810100010000001",
+                    -100, 10, LocalDate.now(), LocalDate.now().plusMonths(24));
+            System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            CreditAccount cab = new CreditAccount("44000810100010000001",
+                    -200, 10, LocalDate.now(), LocalDate.now().plusMonths(10));
+            System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            CreditAccount cab = new CreditAccount("44000810100010000001",
+                    -100, 50, LocalDate.now(), LocalDate.now().plusMonths(10));
+            System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            CreditAccount cab = new CreditAccount("44000810100010000001",
+                    -10000, 13, LocalDate.now(), LocalDate.now().plusMonths(24));
+            System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+
+        try {
+            System.out.println("\nПроверка интерфейса Client (класс Entity)");
+
+            Entity e = new Entity("NAME");
+            e.add(new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1)));
+            e.add(new DebitAccount("40000810100010000001", LocalDate.now().plusMonths(1)));
+            e.add(new DebitAccount("40000810100010000002", LocalDate.now().plusMonths(1)));
+            e.add(new DebitAccount("40000810100010000003", LocalDate.now().plusMonths(1)));
+
+            try {
+                System.out.println(e.get("44000810100010000001"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(e.get("44000810100010000004"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(
+                        e.add(new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1)))
+                );
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(
+                        e.set(3, new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1)))
+                );
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(e.get(-1));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(e.get(10));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            System.out.println("\nПроверка интерфейса Client (класс Individual)");
+
+            Individual individual = new Individual("NAME2");
+            individual.add(new CreditAccount("44000810100010000011", LocalDate.now().plusMonths(1)));
+            individual.add(new DebitAccount("40000810100010000011", LocalDate.now().plusMonths(1)));
+            individual.add(new DebitAccount("40000810100010000012", LocalDate.now().plusMonths(1)));
+            individual.add(new DebitAccount("40000810100010000013", LocalDate.now().plusMonths(1)));
+
+            try {
+                System.out.println(individual.get("44000810100010000011"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(individual.get("44000810100010000014"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(
+                        individual.add(new CreditAccount("44000810100010000011", LocalDate.now().plusMonths(1)))
+                );
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(
+                        individual.set(3, new CreditAccount("44000810100010000011", LocalDate.now().plusMonths(1)))
+                );
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(individual.get(-1));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(individual.get(20));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            System.out.println("\nПроверка AccountManager");
+
+            AccountManager am = new AccountManager();
+            am.add(e);
+            am.add(individual);
+
+            try {
+                System.out.println(am.getAccount("44000810100010000021"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(am.getAccount("44000810100010000011"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(am.get(-1));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(am.get(1));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                System.out.println(am.get(1));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 }
