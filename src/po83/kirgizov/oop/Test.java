@@ -496,7 +496,7 @@ public class Test {
         }
 
         try {
-            // Правильный номер
+            // Правильный номер 3
             DebitAccount dag = new DebitAccount("40000810100010000001", LocalDate.now().plusMonths(1));
         } catch (Exception e) {
             System.out.println(e.getMessage() + " - контрольный тест 3 провален");
@@ -505,6 +505,7 @@ public class Test {
         System.out.println("\nПроверка передачи баланса");
 
         try {
+            // Баланс мельше нуля в DebitAccount
             DebitAccount dab = new DebitAccount("40000810100010000001",
                     -100, LocalDate.now(), LocalDate.now().plusMonths(1));
         } catch (Exception e) {
@@ -512,6 +513,7 @@ public class Test {
         }
 
         try {
+            // Баланс больше нуля в CreditAccount
             CreditAccount cab = new CreditAccount("45000810100010000001",
                     100, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
         } catch (Exception e) {
@@ -519,6 +521,7 @@ public class Test {
         }
 
         try {
+            // Правильный баланс
             DebitAccount dag = new DebitAccount("40000810100010000001",
                     100, LocalDate.now(), LocalDate.now().plusMonths(1));
         } catch (Exception e) {
@@ -526,6 +529,7 @@ public class Test {
         }
 
         try {
+            // Правильный баланс
             CreditAccount cag = new CreditAccount("44000810100010000001",
                     -100, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
         } catch (Exception e) {
@@ -535,6 +539,7 @@ public class Test {
         System.out.println("\nПроверка LocalDate");
 
         try {
+            // Дата создания в будущем
             CreditAccount cab = new CreditAccount("44000810100010000001",
                     -100, 10, LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2));
         } catch (Exception e) {
@@ -542,6 +547,7 @@ public class Test {
         }
 
         try {
+            // Дата окончания обслуживания раньше даты создания
             CreditAccount cab = new CreditAccount("44000810100010000001",
                     -100, 10, LocalDate.now(), LocalDate.now().minusMonths(1));
         } catch (Exception e) {
@@ -549,6 +555,7 @@ public class Test {
         }
 
         try {
+            // Правильная дата
             CreditAccount cag = new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1));
         } catch (Exception e) {
             System.out.println(e.getMessage() + " - контрольный тест 1 провален");
@@ -557,6 +564,7 @@ public class Test {
         System.out.println("\nПроверка величины и даты следующего платежа");
 
         try {
+            // Правильные даты 1
             CreditAccount cab = new CreditAccount("44000810100010000001",
                     -100, 10, LocalDate.now(), LocalDate.now().plusMonths(24));
             System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
@@ -565,6 +573,7 @@ public class Test {
         }
 
         try {
+            // Правильные даты 2
             CreditAccount cab = new CreditAccount("44000810100010000001",
                     -200, 10, LocalDate.now(), LocalDate.now().plusMonths(10));
             System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
@@ -573,6 +582,7 @@ public class Test {
         }
 
         try {
+            // Правильные даты 3
             CreditAccount cab = new CreditAccount("44000810100010000001",
                     -100, 50, LocalDate.now(), LocalDate.now().plusMonths(10));
             System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
@@ -581,6 +591,7 @@ public class Test {
         }
 
         try {
+            // Правильные даты 4
             CreditAccount cab = new CreditAccount("44000810100010000001",
                     -10000, 13, LocalDate.now(), LocalDate.now().plusMonths(24));
             System.out.println(cab.getNextPaymentDate() + " - " + cab.getNextPaymentValue());
@@ -599,18 +610,21 @@ public class Test {
             e.add(new DebitAccount("40000810100010000003", LocalDate.now().plusMonths(1)));
 
             try {
+                // Существующий номер
                 System.out.println(e.get("44000810100010000001"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Несуществующий номер
                 System.out.println(e.get("44000810100010000004"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Существующий номер
                 System.out.println(
                         e.add(new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1)))
                 );
@@ -619,6 +633,7 @@ public class Test {
             }
 
             try {
+                // Существующий номер
                 System.out.println(
                         e.set(3, new CreditAccount("44000810100010000001", LocalDate.now().plusMonths(1)))
                 );
@@ -627,12 +642,14 @@ public class Test {
             }
 
             try {
+                // Отрицательный индекс
                 System.out.println(e.get(-1));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Индекс больше размера
                 System.out.println(e.get(10));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
@@ -647,18 +664,21 @@ public class Test {
             individual.add(new DebitAccount("40000810100010000013", LocalDate.now().plusMonths(1)));
 
             try {
+                // Существующий номер
                 System.out.println(individual.get("44000810100010000011"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Несуществующий номер
                 System.out.println(individual.get("44000810100010000014"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Существующий номер
                 System.out.println(
                         individual.add(new CreditAccount("44000810100010000011", LocalDate.now().plusMonths(1)))
                 );
@@ -667,6 +687,7 @@ public class Test {
             }
 
             try {
+                // Существующий номер
                 System.out.println(
                         individual.set(3, new CreditAccount("44000810100010000011", LocalDate.now().plusMonths(1)))
                 );
@@ -675,12 +696,14 @@ public class Test {
             }
 
             try {
+                // Отрицательный индекс
                 System.out.println(individual.get(-1));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Индекс больше размера
                 System.out.println(individual.get(20));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
@@ -693,34 +716,57 @@ public class Test {
             am.add(individual);
 
             try {
+                // Несуществующий номер
                 System.out.println(am.getAccount("44000810100010000021"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Существующий номер
                 System.out.println(am.getAccount("44000810100010000011"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
+                // Отрицательный индекс
                 System.out.println(am.get(-1));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
-                System.out.println(am.get(1));
+                // Передан null
+                System.out.println(am.add(null));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
 
             try {
-                System.out.println(am.get(1));
+                // Неправильный формат
+                System.out.println(am.getAccount("44000110100010000011"));
             } catch (Exception e1) {
                 System.out.println(e1.getMessage());
             }
+
+            try {
+                // Существующий номер
+                System.out.println(am.setAccount("44000810100010000011",
+                        new DebitAccount("40000810100010000012", LocalDate.now().plusMonths(1))));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
+            try {
+                // Правильная замена аккаунта по номеру
+                System.out.println(am.setAccount("44000810100010000011",
+                        new DebitAccount("40000810100010000022", LocalDate.now().plusMonths(1))));
+                System.out.println(am.getAccount("40000810100010000022"));
+            } catch (Exception e1) {
+                System.out.println(e1.getMessage());
+            }
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

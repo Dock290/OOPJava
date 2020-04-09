@@ -445,6 +445,26 @@ public class Individual implements Client {
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Object result = super.clone();
+
+        Account[] resultAccounts = new Account[size];
+
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i].getClass() == DebitAccount.class)
+            {
+                resultAccounts[i] = new DebitAccount(accounts[i].getNumber(), accounts[i].getBalance(),
+                        accounts[i].getCreationDate(), accounts[i].getExpirationDate());
+            }
+            else if (accounts[i].getClass() == CreditAccount.class)
+            {
+                resultAccounts[i] = new CreditAccount(accounts[i].getNumber(), accounts[i].getBalance(),
+                        ((CreditAccount)accounts[i]).getAnnualPercentageRate(),
+                        accounts[i].getCreationDate(), accounts[i].getExpirationDate());
+            }
+        }
+
+        ((Individual)result).accounts = resultAccounts;
+
+        return result;
     }
 }

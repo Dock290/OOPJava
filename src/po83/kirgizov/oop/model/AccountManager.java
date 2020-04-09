@@ -25,6 +25,7 @@ public class AccountManager {
     }
 
 
+    @SuppressWarnings("ConstantConditions")
     public boolean add(Client client) {
         Objects.requireNonNull(client, "client is null");
 
@@ -164,10 +165,12 @@ public class AccountManager {
         Account[] buffer;
 
         for (int i = 0; i < size; ++i) {
-            buffer = clients[i].getAccounts();
-            for (int j = 0; j < buffer.length; ++j) {
-                if (buffer[i].getNumber().equals(accountNumber)) {
-                    result = buffer[i];
+            if (clients[i] != null) {
+                buffer = clients[i].getAccounts();
+                for (Account account : buffer) {
+                    if (account.getNumber().equals(accountNumber)) {
+                        result = account;
+                    }
                 }
             }
         }
@@ -246,19 +249,27 @@ public class AccountManager {
             throw new InvalidAccountNumberException("account number has wrong format");
         }
 
+        int ir, jr;
+        ir = jr = 0;
         Account result = null;
 
-        for (int i = 0; i < size; ++i) {
-            for (int j = 0; j < clients[i].getSize(); ++j) {
-                if (clients[i].getAccounts()[j].getNumber().equals(accountNumber)) {
-                    result = clients[i].getAccounts()[j];
-                    clients[i].getAccounts()[j] = account;
-                }
+        Account[] accounts;
 
-                if (clients[i].getAccounts()[j].getNumber().equals(account.getNumber())) {
-                    throw new DuplicateAccountNumberException(
-                            String.format("account with number %s already exists", account.getNumber())
-                    );
+        for (int i = 0; i < size; ++i) {
+            if (clients[i] != null) {
+                accounts = clients[i].getAccounts();
+                for (int j = 0; j < accounts.length; ++j) {
+                    if (accounts[j].getNumber().equals(accountNumber)) {
+                        result = accounts[j];
+                        ir = i;
+                        jr = j;
+                    }
+
+                    if (accounts[j].getNumber().equals(account.getNumber())) {
+                        throw new DuplicateAccountNumberException(
+                                String.format("account with number %s already exists", account.getNumber())
+                        );
+                    }
                 }
             }
         }
@@ -266,6 +277,8 @@ public class AccountManager {
         if (Objects.isNull(result)) {
             throw new NoSuchElementException(String.format("account %s not found", accountNumber));
         }
+
+        clients[ir].set(jr, account);
 
         return result;
     }
@@ -333,9 +346,11 @@ public class AccountManager {
     private boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
 
-        return accountNumber.length() < 20 ||
-                accountNumber.charAt(0) != '4' ||
-                accountNumber.charAt(1) != '0' || accountNumber.charAt(1) != '4' || accountNumber.charAt(1) != '5' ||
-                accountNumber.startsWith("810", 6);
+        return !(accountNumber.length() == 20 &&
+                accountNumber.charAt(0) == '4' &&
+                (accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5' || accountNumber.charAt(1) == '0') &&
+                accountNumber.startsWith("810", 5) &&
+                !accountNumber.startsWith("0000", 9) &&
+                !accountNumber.startsWith("0000000", 13));
     }
 }

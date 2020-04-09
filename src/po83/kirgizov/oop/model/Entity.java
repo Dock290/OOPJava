@@ -466,6 +466,7 @@ public class Entity implements Client {
                 if (!current.value.equals(((Entity) o).get(i))) {
                     return false;
                 }
+                current = current.next;
             }
             return true;
         }
