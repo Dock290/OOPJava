@@ -233,8 +233,10 @@ public class AccountManager {
         Objects.requireNonNull(client, "client is null");
 
         for (int i = 0; i < size; ++i) {
-            if (clients[i].equals(client)) {
-                return i;
+            if (clients[i] != null) {
+                if (clients[i].equals(client)) {
+                    return i;
+                }
             }
         }
 
