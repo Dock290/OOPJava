@@ -2,8 +2,12 @@ package po83.kirgizov.oop.model;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Entity implements Client {
+    private static int DEF_SIZE = 0;
+    private static int DEF_CREDIT_SCORE = 0;
+
     private String name;
     private int size;
     private Node head, tail;
@@ -12,11 +16,12 @@ public class Entity implements Client {
     public Entity(String name) {
         Objects.requireNonNull(name, "name is null");
         //todo числа в константы
+        // Сделал
         this.name = name;
         head = null;
         tail = null;
-        size = 0;
-        creditScore = 0;
+        size = DEF_SIZE;
+        creditScore = DEF_CREDIT_SCORE;
     }
 
     public Entity(String name, Account[] accounts) {
@@ -130,18 +135,11 @@ public class Entity implements Client {
     public boolean add(Account account) throws DuplicateAccountNumberException {
         Objects.requireNonNull(account, "account is null");
 
-        if (head == null) {
-            head = tail = new Node();
-            head.next = tail;
-        }
-
-        Node current = head.next;
-        for (int i = 0; i < size; ++i) {
-            //todo повторяющееся сравнение в отдельный метод
-            if (current.value.getNumber().equals(account.getNumber())) {
-                throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
-            }
-            current = current.next;
+        //todo повторяющееся сравнение в отдельный метод
+        // Добавил метод, все повторения заменил на использование метода
+        if (isNumberMatchFound(account.getNumber()))
+        {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
         }
 
         return addNode(new Node(account));
@@ -156,12 +154,9 @@ public class Entity implements Client {
 
         Objects.requireNonNull(account, "account is null");
 
-        Node current = head.next;
-        for (int i = 0; i < size; ++i) {
-            if (current.value.getNumber().equals(account.getNumber())) {
-                throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
-            }
-            current = current.next;
+        if (isNumberMatchFound(account.getNumber()))
+        {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
         }
 
         return addNode(index, new Node(account));
@@ -174,12 +169,9 @@ public class Entity implements Client {
     public Account set(int index, Account account) throws DuplicateAccountNumberException {
         Objects.requireNonNull(account, "account is null");
 
-        Node current = head.next;
-        for (int i = 0; i < size; ++i) {
-            if (current.value.getNumber().equals(account.getNumber())) {
-                throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
-            }
-            current = current.next;
+        if (isNumberMatchFound(account.getNumber()))
+        {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
         }
 
         return setNode(index, account);
@@ -423,16 +415,30 @@ public class Entity implements Client {
         return result;
     }
 
+    private boolean isNumberMatchFound(String accountNumber)
+    {
+        if (head == null) {
+            head = tail = new Node();
+            head.next = tail;
+        }
+
+        Node current = head.next;
+        for (int i = 0; i < size; ++i) {
+            if (current.value.getNumber().equals(accountNumber)) {
+                return true;
+            }
+            current = current.next;
+        }
+
+        return false;
+    }
+
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
         //todo паттерн?
-        return !(accountNumber.length() == 20 &&
-                accountNumber.charAt(0) == '4' &&
-                (accountNumber.charAt(1) == '0' || accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5') &&
-                accountNumber.startsWith("810", 5) &&
-                !accountNumber.startsWith("0000", 9) &&
-                !accountNumber.startsWith("0000000", 13));
+        // Добавил
+        return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 
     @Override
@@ -481,12 +487,8 @@ public class Entity implements Client {
                     }
                     current = current.next;
                 }
-                return true;
             }
-            else
-            {
-                return  true;
-            }
+            return true;
         }
         return false;
     }

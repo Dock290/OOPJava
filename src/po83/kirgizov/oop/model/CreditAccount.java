@@ -3,7 +3,7 @@ package po83.kirgizov.oop.model;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Objects;
-import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class CreditAccount extends AbstractAccount implements Credit, Cloneable {
     private double AnnualPercentageRate;
@@ -42,7 +42,8 @@ public class CreditAccount extends AbstractAccount implements Credit, Cloneable 
     public double getNextPaymentValue() {
         double result = getBalance() * (1 + getAnnualPercentageRate() *
                 //todo почему умножение на 0.1? в формуле этого не было
-                Period.between(LocalDate.now(), getExpirationDate()).getYears() * 0.1)
+                // Убрал
+                Period.between(LocalDate.now(), getExpirationDate()).getYears())
                 / monthsQuantityBeforeExpiration();
         return result < 0 ? -result : result;
     }
@@ -60,11 +61,20 @@ public class CreditAccount extends AbstractAccount implements Credit, Cloneable 
     }
 
     //todo уже можно пользоваться StringBuilder и String.format
+    // Добавил String.format. Среда разработки предлагает заменить StringBuilder на String
     @Override
     public String toString() {
-        return "Credit account - " + "number: " + getNumber() + " balance: " + getBalance() +
-                " Annual Percentage Rate: " + AnnualPercentageRate +
-                "\ncreation date: " + getCreationDate() + " expiration date: " + getExpirationDate();
+        return "Credit account - " +
+                "number: " +
+                getNumber() +
+                " balance: " +
+                String.format("%f", getBalance()) +
+                " Annual Percentage Rate: " +
+                String.format("%f", getAnnualPercentageRate()) +
+                " creation date: " +
+                getCreationDate() +
+                " expiration date: " +
+                getExpirationDate();
     }
 
     @Override
@@ -83,15 +93,10 @@ public class CreditAccount extends AbstractAccount implements Credit, Cloneable 
     }
 
     @Override
-    public boolean isNumberNotFormatted(String number) {
-        Objects.requireNonNull(number, "number is null");
-
+    public boolean isNumberNotFormatted(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "number is null");
         //todo почему не паттерн для проверки номера?
-        return !(number.length() == 20 &&
-                number.charAt(0) == '4' && (number.charAt(1) == '4' || number.charAt(1) == '5') &&
-                number.startsWith("810", 5) &&
-                !number.startsWith("0000", 9) &&
-                !number.startsWith("0000000", 13));
-
+        // Добавил
+        return !Pattern.matches("^4[45]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }

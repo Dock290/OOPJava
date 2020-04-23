@@ -2,8 +2,13 @@ package po83.kirgizov.oop.model;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.regex.Pattern;
+
 //todo копирование массива без null'ов по контракту класс осуществляется ТОЛЬКО при УДАЛЕНИИ элемента
 public class Individual implements Client {
+    private static int DEF_SIZE = 16;
+    private static int DEF_CREDIT_SCORE = 0;
+
     private String name;
     private int size;
     protected Account[] accounts;
@@ -12,10 +17,11 @@ public class Individual implements Client {
     public Individual(String name) {
         Objects.requireNonNull(name, "name is null");
         //todo числа в константы
-        accounts = new Account[16];
-        size = 16;
+        // Сделал
+        accounts = new Account[DEF_SIZE];
+        size = DEF_SIZE;
         this.name = name;
-        creditScore = 0;
+        creditScore = DEF_CREDIT_SCORE;
     }
 
     public Individual(String name, int size) {
@@ -24,7 +30,7 @@ public class Individual implements Client {
         accounts = new Account[size];
         this.size = size;
         this.name = name;
-        creditScore = 0;
+        creditScore = DEF_SIZE;
     }
 
     public Individual(String name, Account[] accounts) {
@@ -49,12 +55,8 @@ public class Individual implements Client {
     public boolean add(Account account) throws DuplicateAccountNumberException {
         Objects.requireNonNull(account, "account is null");
 
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                if (accounts[i].getNumber().equals(account.getNumber())) {
-                    throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
-                }
-            }
+        if (isNumberMatchFound(account.getNumber())) {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
         }
 
         for (int i = 0; i < size; ++i) {
@@ -64,21 +66,11 @@ public class Individual implements Client {
             }
         }
         //todo увеличение размера массива должен делать отдельный метод
-        Account[] newAccounts = new Account[size * 2];
-        for (int i = 0; i < size * 2; ++i) {
-            if (i < accounts.length) {
-                newAccounts[i] = accounts[i];
-            } else {
-                if (newAccounts[i] == null) {
-                    newAccounts[i] = account;
-                    accounts = newAccounts;
-                    size *= 2;
-                    return true;
-                }
-            }
-        }
+        // Добавил метод
 
-        return false;
+        doubleAccountsArraySize();
+
+        return add(account);
     }
 
     public boolean add(int index, Account account) throws DuplicateAccountNumberException {
@@ -90,13 +82,10 @@ public class Individual implements Client {
 
         Objects.requireNonNull(account, "account is null");
 
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                //todo сравнение вынести в отдельный метод
-                if (accounts[i].getNumber().equals(account.getNumber())) {
-                    throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
-                }
-            }
+        //todo сравнение вынести в отдельный метод
+        // Добавил метод, все повторения заменил на использование метода
+        if (isNumberMatchFound(account.getNumber())) {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
         }
 
         if (accounts[index] == null) {
@@ -213,8 +202,10 @@ public class Individual implements Client {
         Account changedAccount = accounts[index];
         accounts[index] = null;
         //todo почему у одинаковых по назначению методов (этого и следующего) такие отличия в функционале?
-        if (size - index + 1 >= 0) System.arraycopy(accounts,
-                index + 1, accounts, index, size - index + 1);
+        // Исправил. Теперь из следующих двух методов удаления вызывается метод удаления по индексу.
+        if (size - index + 1 >= 0) {
+            System.arraycopy(accounts, index + 1, accounts, index, size - index + 1);
+        }
 
         return changedAccount;
     }
@@ -226,47 +217,31 @@ public class Individual implements Client {
             throw new InvalidAccountNumberException("accountNumber has wrong format");
         }
 
-        Account changedAccount = null;
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
                 if (accounts[i].getNumber().equals(accountNumber)) {
-                    changedAccount = accounts[i];
-                    accounts[i] = null;
-                    i--;
+                    return remove(i);
                 }
             }
-
-            if (changedAccount != null && i < size - 1) {
-                accounts[i] = accounts[i + 1];
-            }
         }
 
-        if (Objects.isNull(changedAccount)) {
-            throw new NoSuchElementException("account with number " + accountNumber + " not found");
-        }
-
-        return changedAccount;
+        throw new NoSuchElementException("account with number " + accountNumber + " not found");
     }
 
     @Override
     public boolean remove(Account account) {
         Objects.requireNonNull(account, "account is null");
 
-        boolean isDeleted = false;
         for (int i = 0; i < size; ++i) {
-            if (!isDeleted) {
-                if (accounts[i] != null) {
-                    if (accounts[i].equals(account)) {
-                        accounts[i] = null;
-                        isDeleted = true;
-                        i--;
-                    }
+            if (accounts[i] != null) {
+                if (accounts[i].equals(account)) {
+                    remove(i);
+                    return true;
                 }
-            } else if (i < size - 1) {
-                accounts[i] = accounts[i + 1];
             }
         }
-        return isDeleted;
+
+        return false;
     }
 
     public int getSize() {
@@ -274,55 +249,29 @@ public class Individual implements Client {
     }
 
     public Account[] getAccounts() {
-        int newSize = 0;
-
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                newSize++;
-            }
-        }
-
-        Account[] result = new Account[newSize];
-
-        int j = 0;
         //todo почему не System.arraycopy на индекс левее при нахождении null?
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                result[j] = accounts[i];
-                j++;
-            }
-        }
+        // Заменил на System.arraycopy
+        Account[] result = new Account[size];
+        System.arraycopy(accounts, 0, result, 0, size);
 
         return result;
     }
 
     public Account[] sortedAccountsByBalance() {
-        int newSize = 0;
-
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                newSize++;
-            }
-        }
-
-        Account[] result = new Account[newSize];
         //todo это не входит в контракт метода, он должен сортировать, а не удалять null'ы
-        int j = 0;
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                result[j] = accounts[i];
-                j++;
-            }
-        }
+        // Исправил
+
+        Account[] result = new Account[size];
+        System.arraycopy(accounts, 0, result, 0, size);
 
         Account buffer;
         boolean isSorted = false;
 
         while (!isSorted) {
-            for (int i = 0; i < newSize - 1; i++) {
-                if (result[i] != null && result[i + 1] != null) {
-                    isSorted = true;
-                    if (result[i].getBalance() > result[i + 1].getBalance()) {
+            isSorted = true;
+            for (int i = 0; i < size - 1; i++) {
+                if (result[i + 1] != null) {
+                    if (result[i] == null || result[i].getBalance() > result[i + 1].getBalance()) {
                         isSorted = false;
 
                         buffer = result[i];
@@ -351,9 +300,10 @@ public class Individual implements Client {
         int j = 0;
         for (int i = 0; i < size; ++i) {
             //todo System.arraycopy?
+            // Заменил на System.arraycopy
             if (accounts[i] != null) {
                 if (accounts[i].getClass() == CreditAccount.class) {
-                    result[j] = accounts[i];
+                    System.arraycopy(accounts, i, result, j, 1);
                     j++;
                 }
             }
@@ -398,16 +348,33 @@ public class Individual implements Client {
         return result;
     }
 
+    private void doubleAccountsArraySize()
+    {
+        Account[] newAccounts = new Account[size * 2];
+
+        System.arraycopy(accounts, 0, newAccounts, 0, size);
+        size *= 2;
+
+        accounts = newAccounts;
+    }
+
+    private boolean isNumberMatchFound(String accountNumber) {
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i] != null) {
+                if (accounts[i].getNumber().equals(accountNumber)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
         //todo почему не паттерн для проверки?
-        return !(accountNumber.length() == 20 &&
-                accountNumber.charAt(0) == '4' &&
-                (accountNumber.charAt(1) == '0' || accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5') &&
-                accountNumber.startsWith("810", 5) &&
-                !accountNumber.startsWith("0000", 9) &&
-                !accountNumber.startsWith("0000000", 13));
+        // Заменил на паттерн
+        return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 
     @Override

@@ -2,15 +2,22 @@ package po83.kirgizov.oop.model;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.regex.Pattern;
+
 //todo комментарии из Individual применимы сюда
+// Добавил System.arraycopy в методы getClients, remove(Client client), getDebtors, getWickedDebtors
+// Изменил метод sortedClientsByBalance. Не удаляет null-элементы, использует System.arraycopy
 public class AccountManager {
+    private static int DEF_SIZE = 16;
+
     private Client[] clients;
     int size;
 
     public AccountManager() {
         //todo вынести числа в константу
-        clients = new Client[16];
-        size = 16;
+        // Сделал
+        clients = new Client[DEF_SIZE];
+        size = DEF_SIZE;
     }
 
     public AccountManager(int size) {
@@ -26,8 +33,7 @@ public class AccountManager {
     }
 
 
-    @SuppressWarnings("ConstantConditions")
-    public boolean add(Client client) {
+    public boolean add(Client client) throws NullPointerException {
         Objects.requireNonNull(client, "client is null");
 
         for (int i = 0; i < size; ++i) {
@@ -36,6 +42,7 @@ public class AccountManager {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -97,57 +104,31 @@ public class AccountManager {
     }
 
     public Client[] getClients() {
-        int resSize = 0;
+        Client[] result = new Client[size];
 
-        for (int i = 0; i < size; ++i) {
-            if (clients[i] != null) {
-                resSize++;
-            }
-        }
-
-        Client[] result = new Client[resSize];
-        int j = 0;
-
-        for (int i = 0; i < size; ++i) {
-            if (clients[i] != null) {
-                result[j++] = clients[i];
-            }
-        }
+        System.arraycopy(clients, 0, result, 0, size);
 
         return result;
     }
 
     public Client[] sortedClientsByBalance() {
-        Client[] result = getClients();
-        int[] resultBalance = new int[result.length];
+        Client[] result = new Client[size];
+        System.arraycopy(clients, 0, result, 0, size);
 
-        for (int i = 0; i < result.length; ++i) {
-            for (Account account : result[i].getAccounts()) {
-                resultBalance[i] += account.getBalance();
-            }
-        }
-
-        if (result.length == 0) {
-            return null;
-        }
-
-        Client bufferClient;
-        int bufferBalance;
+        Client buffer;
         boolean isSorted = false;
 
         while (!isSorted) {
-            for (int i = 0; i < result.length - 1; i++) {
-                isSorted = true;
-                if (resultBalance[i] > resultBalance[i + 1]) {
-                    isSorted = false;
+            isSorted = true;
+            for (int i = 0; i < size - 1; i++) {
+                if (result[i + 1] != null) {
+                    if (result[i] == null || result[i].totalBalance() > result[i + 1].totalBalance()) {
+                        isSorted = false;
 
-                    bufferClient = result[i];
-                    result[i] = result[i + 1];
-                    result[i + 1] = bufferClient;
-
-                    bufferBalance = resultBalance[i];
-                    resultBalance[i] = resultBalance[i + 1];
-                    resultBalance[i + 1] = bufferBalance;
+                        buffer = result[i];
+                        result[i] = result[i + 1];
+                        result[i + 1] = buffer;
+                    }
                 }
             }
         }
@@ -162,25 +143,22 @@ public class AccountManager {
             throw new InvalidAccountNumberException("account number has wrong format");
         }
 
-        Account result = null;
         Account[] buffer;
 
         for (int i = 0; i < size; ++i) {
             if (clients[i] != null) {
                 buffer = clients[i].getAccounts();
                 for (Account account : buffer) {
-                    if (account.getNumber().equals(accountNumber)) {
-                        result = account;
+                    if (account != null) {
+                        if (account.getNumber().equals(accountNumber)) {
+                            return account;
+                        }
                     }
                 }
             }
         }
 
-        if (Objects.isNull(result)) {
-            throw new NoSuchElementException(String.format("account %s not found", accountNumber));
-        }
-
-        return result;
+        throw new NoSuchElementException(String.format("account %s not found", accountNumber));
     }
 
     public Account removeAccount(String accountNumber) {
@@ -214,20 +192,17 @@ public class AccountManager {
     public boolean remove(Client client) {
         Objects.requireNonNull(client, "client is null");
 
-        boolean isDeleted = false;
-
         for (int i = 0; i < size; ++i) {
-            if (!isDeleted) {
-                if (clients[i].equals(client)) {
-                    clients[i] = null;
-                    isDeleted = true;
+            if (clients[i].equals(client)) {
+                clients[i] = null;
+                if (size - i + 1 >= 0) {
+                    System.arraycopy(clients, i + 1, clients, i, size - i + 1);
                 }
-            } else if (i < size - 1) {
-                clients[i] = clients[i + 1];
+                return true;
             }
         }
 
-        return isDeleted;
+        return false;
     }
 
     public int indexOf(Client client) {
@@ -252,26 +227,29 @@ public class AccountManager {
             throw new InvalidAccountNumberException("account number has wrong format");
         }
         //todo что с именованием переменных? для чего они служат?
-        int ir, jr;
-        ir = jr = 0;
+        // Исправил названия переменных, немного изменил метод
+
+        int indexOfClient, indexOfAccount;
+        indexOfClient = indexOfAccount = 0;
         Account result = null;
 
-        Account[] accounts;
+        Account[] bufferAccounts;
 
         for (int i = 0; i < size; ++i) {
             if (clients[i] != null) {
-                accounts = clients[i].getAccounts();
-                for (int j = 0; j < accounts.length; ++j) {
-                    if (accounts[j].getNumber().equals(accountNumber)) {
-                        result = accounts[j];
-                        ir = i;
-                        jr = j;
-                    }
-
-                    if (accounts[j].getNumber().equals(account.getNumber())) {
+                bufferAccounts = clients[i].getAccounts();
+                for (int j = 0; j < bufferAccounts.length; ++j) {
+                    if (bufferAccounts[j].getNumber().equals(account.getNumber())) {
                         throw new DuplicateAccountNumberException(
                                 String.format("account with number %s already exists", account.getNumber())
                         );
+                    }
+
+                    if (bufferAccounts[j].getNumber().equals(accountNumber)) {
+                        result = bufferAccounts[j];
+                        indexOfClient = i;
+                        indexOfAccount = j;
+                        break;
                     }
                 }
             }
@@ -281,7 +259,7 @@ public class AccountManager {
             throw new NoSuchElementException(String.format("account %s not found", accountNumber));
         }
 
-        clients[ir].set(jr, account);
+        clients[indexOfClient].set(indexOfAccount, account);
 
         return result;
     }
@@ -302,7 +280,7 @@ public class AccountManager {
         for (int i = 0; i < size; i++) {
             if (clients[i] != null) {
                 if (clients[i].getCreditAccounts().length > 0) {
-                    result[j] = clients[i];
+                    System.arraycopy(clients, i, result, j, 1);
                     j++;
                 }
             }
@@ -327,7 +305,8 @@ public class AccountManager {
         for (int i = 0; i < size; i++) {
             if (clients[i] != null) {
                 if (clients[i].getStatus() == ClientStatus.BAD && clients[i].getCreditAccounts().length > 0) {
-                    result[j] = clients[i];
+                    System.arraycopy(clients, i, result, j, 1);
+                    j++;
                 }
             }
         }
@@ -349,11 +328,7 @@ public class AccountManager {
     private boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
         //todo паттерн?
-        return !(accountNumber.length() == 20 &&
-                accountNumber.charAt(0) == '4' &&
-                (accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5' || accountNumber.charAt(1) == '0') &&
-                accountNumber.startsWith("810", 5) &&
-                !accountNumber.startsWith("0000", 9) &&
-                !accountNumber.startsWith("0000000", 13));
+        // Добавил
+        return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }

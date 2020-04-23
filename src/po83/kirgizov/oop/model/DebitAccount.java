@@ -2,6 +2,7 @@ package po83.kirgizov.oop.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class DebitAccount extends AbstractAccount implements Cloneable {
     public DebitAccount(String number, LocalDate expirationDate) {
@@ -22,8 +23,10 @@ public class DebitAccount extends AbstractAccount implements Cloneable {
     }
 
     @Override
-    public String toString() {
-        return super.toString();
+    public String toString()
+    {
+        return "Debut account: " +
+                super.toString();
     }
 
     @Override
@@ -42,13 +45,10 @@ public class DebitAccount extends AbstractAccount implements Cloneable {
     }
 
     @Override
-    public boolean isNumberNotFormatted(String number) {
-        Objects.requireNonNull(number, "number is null");
+    public boolean isNumberNotFormatted(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
         //todo паттерн?
-        return !(number.length() == 20 &&
-                number.charAt(0) == '4' && number.charAt(1) == '0' &&
-                number.startsWith("810", 5) &&
-                !number.startsWith("0000", 9) &&
-                !number.startsWith("0000000", 13));
+        // Добавил
+        return !Pattern.matches("^40\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }

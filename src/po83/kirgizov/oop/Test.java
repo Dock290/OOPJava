@@ -2,7 +2,6 @@ package po83.kirgizov.oop;
 
 import po83.kirgizov.oop.model.*;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 public class Test {
@@ -442,6 +441,7 @@ public class Test {
 
         try {
             DebitAccount dab = new DebitAccount("bad number", LocalDate.now().plusMonths(1));
+            System.out.println(dab.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -449,6 +449,7 @@ public class Test {
         try {
             // (A) 45XXX - кредит, а нужен дебет
             DebitAccount dab = new DebitAccount("45000810100010000001", LocalDate.now().plusMonths(1));
+            System.out.println(dab.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage() + " [A]");
         }
@@ -456,6 +457,7 @@ public class Test {
         try {
             // (C) 811 - должно быть 810
             DebitAccount dab = new DebitAccount("40000811100010000001", LocalDate.now().plusMonths(1));
+            System.out.println(dab.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage() + " [C]");
         }
@@ -463,6 +465,7 @@ public class Test {
         try {
             // (D) 0000 - должно начинаться с 0001
             DebitAccount dab = new DebitAccount("40000810100000000001", LocalDate.now().plusMonths(1));
+            System.out.println(dab.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage() + " [D]");
         }
@@ -470,6 +473,7 @@ public class Test {
         try {
             // (N) 0000000 - должно начинаться с 0000001
             DebitAccount dab = new DebitAccount("40000810100010000000", LocalDate.now().plusMonths(1));
+            System.out.println(dab.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage() + " [N]");
         }
@@ -477,6 +481,7 @@ public class Test {
         try {
             // 40XXX - дебет, а нужен кредит
             CreditAccount cab = new CreditAccount("40000810100010000001", LocalDate.now().plusMonths(1));
+            System.out.println(cab.toString());
         } catch (Exception e) {
             System.out.println(e.getMessage() + " [A]");
         }
