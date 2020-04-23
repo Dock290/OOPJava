@@ -112,8 +112,8 @@ public abstract class AbstractAccount implements Account, Cloneable {
     @Override
     public boolean equals(Object o) {
         return o.getClass() == this.getClass() && number.equals(((AbstractAccount) o).number) &&
-                balance == (((AbstractAccount) o).balance) && creationDate == ((AbstractAccount) o).creationDate &&
-                expirationDate == ((AbstractAccount) o).expirationDate;
+                balance == (((AbstractAccount) o).balance) && creationDate.equals(((AbstractAccount) o).creationDate) &&
+                expirationDate.equals(((AbstractAccount) o).expirationDate);
     }
 
     @Override

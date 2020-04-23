@@ -85,7 +85,7 @@ public class Entity implements Client {
             current = current.next;
         }
 
-        return current.next;
+        return current;
     }
 
     private Node deleteNode(int index) {
@@ -409,12 +409,15 @@ public class Entity implements Client {
     }
 
     public double totalBalance() {
-        Node current = head.next;
+        Node current;
         double result = 0;
 
-        for (int i = 0; i < size; ++i) {
-            result += current.value.getBalance();
-            current = current.next;
+        if (size != 0) {
+            current = head.next;
+            for (int i = 0; i < size; ++i) {
+                result += current.value.getBalance();
+                current = current.next;
+            }
         }
 
         return result;
@@ -434,12 +437,16 @@ public class Entity implements Client {
 
     @Override
     public String toString() {
-        Node current = head.next;
+        Node current;
 
         StringBuilder result = new StringBuilder("Entity:\n" + "name: " + name + "\ncreditScore: " + creditScore + "\n");
-        for (int i = 0; i < size; ++i) {
-            result.append(current.value.toString()).append("\n");
-            current = current.next;
+
+        if (size != 0) {
+            current = head.next;
+            for (int i = 0; i < size; ++i) {
+                result.append(current.value.toString()).append("\n");
+                current = current.next;
+            }
         }
         result.append("total: ").append(totalBalance());
         return result.toString();
@@ -447,12 +454,15 @@ public class Entity implements Client {
 
     @Override
     public int hashCode() {
-        Node current = head.next;
+        Node current;
         int result = name.hashCode() ^ creditScore;
 
-        for (int i = 0; i < size; ++i) {
-            result ^= current.value.hashCode();
-            current = current.next;
+        if (size != 0) {
+            current = head.next;
+            for (int i = 0; i < size; ++i) {
+                result ^= current.value.hashCode();
+                current = current.next;
+            }
         }
 
         return result;
@@ -460,16 +470,23 @@ public class Entity implements Client {
 
     @Override
     public boolean equals(Object o) {
-        Node current = head.next;
+        Node current;
 
-        if ((getClass() == o.getClass()) && (size == ((Entity) o).getSize())) {
-            for (int i = 0; i < size; i++) {
-                if (!current.value.equals(((Entity) o).get(i))) {
-                    return false;
+        if ((this.getClass() == o.getClass()) && name.equals(((Entity) o).getName()) && (size == ((Entity) o).getSize())) {
+            if (size != 0) {
+                current = head.next;
+                for (int i = 0; i < size; i++) {
+                    if (!current.value.equals(((Entity) o).get(i))) {
+                        return false;
+                    }
+                    current = current.next;
                 }
-                current = current.next;
+                return true;
             }
-            return true;
+            else
+            {
+                return  true;
+            }
         }
         return false;
     }

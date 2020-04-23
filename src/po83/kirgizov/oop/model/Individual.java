@@ -427,7 +427,9 @@ public class Individual implements Client {
         int result = name.hashCode() ^ creditScore;
 
         for (Account a : accounts) {
-            result ^= a.hashCode();
+            if (a != null) {
+                result ^= a.hashCode();
+            }
         }
 
         return result;
@@ -435,10 +437,12 @@ public class Individual implements Client {
 
     @Override
     public boolean equals(Object o) {
-        if ((getClass() == o.getClass()) && (size == ((Individual) o).getSize())) {
+        if ((getClass() == o.getClass()) && name.equals(((Individual) o).getName()) && (size == ((Individual) o).getSize())) {
             for (int i = 0; i < size; i++) {
-                if (!accounts[i].equals(((Individual) o).accounts[i])) {
-                    return false;
+                if (accounts[i] != null) {
+                    if (!accounts[i].equals(((Individual) o).accounts[i])) {
+                        return false;
+                    }
                 }
             }
             return true;

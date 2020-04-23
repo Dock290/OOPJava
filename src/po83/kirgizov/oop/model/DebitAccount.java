@@ -28,7 +28,7 @@ public class DebitAccount extends AbstractAccount implements Cloneable {
 
     @Override
     public int hashCode() {
-        return super.hashCode() & 53;
+        return super.hashCode() * 53;
     }
 
     @Override
