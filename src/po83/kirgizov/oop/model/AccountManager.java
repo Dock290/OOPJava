@@ -2,12 +2,13 @@ package po83.kirgizov.oop.model;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-
+//todo комментарии из Individual применимы сюда
 public class AccountManager {
     private Client[] clients;
     int size;
 
     public AccountManager() {
+        //todo вынести числа в константу
         clients = new Client[16];
         size = 16;
     }
@@ -248,7 +249,7 @@ public class AccountManager {
         if (isNumberNotFormatted(accountNumber)) {
             throw new InvalidAccountNumberException("account number has wrong format");
         }
-
+        //todo что с именованием переменных? для чего они служат?
         int ir, jr;
         ir = jr = 0;
         Account result = null;
@@ -345,7 +346,7 @@ public class AccountManager {
 
     private boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-
+        //todo паттерн?
         return !(accountNumber.length() == 20 &&
                 accountNumber.charAt(0) == '4' &&
                 (accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5' || accountNumber.charAt(1) == '0') &&

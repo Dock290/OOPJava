@@ -48,7 +48,7 @@ public abstract class AbstractAccount implements Account, Cloneable {
         this.expirationDate = expirationDate;
     }
 
-    public void setNumber(String number) throws  NullPointerException {
+    public void setNumber(String number) throws NullPointerException {
         Objects.requireNonNull(number, "number is null");
 
         if (isNumberNotFormatted(number)) {
@@ -71,7 +71,7 @@ public abstract class AbstractAccount implements Account, Cloneable {
     }
 
     @Override
-    public void setExpirationDate(LocalDate expirationDate) throws NullPointerException{
+    public void setExpirationDate(LocalDate expirationDate) throws NullPointerException {
         Objects.requireNonNull(expirationDate, "expirationDate is null");
         this.expirationDate = expirationDate;
     }
@@ -96,6 +96,7 @@ public abstract class AbstractAccount implements Account, Cloneable {
     }
 
     @Override
+    //todo StringBuilder или String.format?
     public String toString() {
         return "number: " + number + " balance: " + balance +
                 "\ncreation date: " + creationDate + " expiration date: " + expirationDate;

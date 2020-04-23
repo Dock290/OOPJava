@@ -44,7 +44,7 @@ public class DebitAccount extends AbstractAccount implements Cloneable {
     @Override
     public boolean isNumberNotFormatted(String number) {
         Objects.requireNonNull(number, "number is null");
-
+        //todo паттерн?
         return !(number.length() == 20 &&
                 number.charAt(0) == '4' && number.charAt(1) == '0' &&
                 number.startsWith("810", 5) &&

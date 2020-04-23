@@ -2,7 +2,7 @@ package po83.kirgizov.oop.model;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-
+//todo копирование массива без null'ов по контракту класс осуществляется ТОЛЬКО при УДАЛЕНИИ элемента
 public class Individual implements Client {
     private String name;
     private int size;
@@ -11,7 +11,7 @@ public class Individual implements Client {
 
     public Individual(String name) {
         Objects.requireNonNull(name, "name is null");
-
+        //todo числа в константы
         accounts = new Account[16];
         size = 16;
         this.name = name;
@@ -63,7 +63,7 @@ public class Individual implements Client {
                 return true;
             }
         }
-
+        //todo увеличение размера массива должен делать отдельный метод
         Account[] newAccounts = new Account[size * 2];
         for (int i = 0; i < size * 2; ++i) {
             if (i < accounts.length) {
@@ -92,6 +92,7 @@ public class Individual implements Client {
 
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
+                //todo сравнение вынести в отдельный метод
                 if (accounts[i].getNumber().equals(account.getNumber())) {
                     throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
                 }
@@ -211,7 +212,7 @@ public class Individual implements Client {
 
         Account changedAccount = accounts[index];
         accounts[index] = null;
-
+        //todo почему у одинаковых по назначению методов (этого и следующего) такие отличия в функционале?
         if (size - index + 1 >= 0) System.arraycopy(accounts,
                 index + 1, accounts, index, size - index + 1);
 
@@ -284,6 +285,7 @@ public class Individual implements Client {
         Account[] result = new Account[newSize];
 
         int j = 0;
+        //todo почему не System.arraycopy на индекс левее при нахождении null?
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
                 result[j] = accounts[i];
@@ -304,7 +306,7 @@ public class Individual implements Client {
         }
 
         Account[] result = new Account[newSize];
-
+        //todo это не входит в контракт метода, он должен сортировать, а не удалять null'ы
         int j = 0;
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
@@ -348,6 +350,7 @@ public class Individual implements Client {
 
         int j = 0;
         for (int i = 0; i < size; ++i) {
+            //todo System.arraycopy?
             if (accounts[i] != null) {
                 if (accounts[i].getClass() == CreditAccount.class) {
                     result[j] = accounts[i];
@@ -398,7 +401,7 @@ public class Individual implements Client {
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-
+        //todo почему не паттерн для проверки?
         return !(accountNumber.length() == 20 &&
                 accountNumber.charAt(0) == '4' &&
                 (accountNumber.charAt(1) == '0' || accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5') &&
@@ -450,20 +453,17 @@ public class Individual implements Client {
         Account[] resultAccounts = new Account[size];
 
         for (int i = 0; i < size; ++i) {
-            if (accounts[i].getClass() == DebitAccount.class)
-            {
+            if (accounts[i].getClass() == DebitAccount.class) {
                 resultAccounts[i] = new DebitAccount(accounts[i].getNumber(), accounts[i].getBalance(),
                         accounts[i].getCreationDate(), accounts[i].getExpirationDate());
-            }
-            else if (accounts[i].getClass() == CreditAccount.class)
-            {
+            } else if (accounts[i].getClass() == CreditAccount.class) {
                 resultAccounts[i] = new CreditAccount(accounts[i].getNumber(), accounts[i].getBalance(),
-                        ((CreditAccount)accounts[i]).getAnnualPercentageRate(),
+                        ((CreditAccount) accounts[i]).getAnnualPercentageRate(),
                         accounts[i].getCreationDate(), accounts[i].getExpirationDate());
             }
         }
 
-        ((Individual)result).accounts = resultAccounts;
+        ((Individual) result).accounts = resultAccounts;
 
         return result;
     }

@@ -11,7 +11,7 @@ public class Entity implements Client {
 
     public Entity(String name) {
         Objects.requireNonNull(name, "name is null");
-
+        //todo числа в константы
         this.name = name;
         head = null;
         tail = null;
@@ -137,6 +137,7 @@ public class Entity implements Client {
 
         Node current = head.next;
         for (int i = 0; i < size; ++i) {
+            //todo повторяющееся сравнение в отдельный метод
             if (current.value.getNumber().equals(account.getNumber())) {
                 throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
             }
@@ -422,7 +423,7 @@ public class Entity implements Client {
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-
+        //todo паттерн?
         return !(accountNumber.length() == 20 &&
                 accountNumber.charAt(0) == '4' &&
                 (accountNumber.charAt(1) == '0' || accountNumber.charAt(1) == '4' || accountNumber.charAt(1) == '5') &&
@@ -477,15 +478,15 @@ public class Entity implements Client {
     protected Object clone() throws CloneNotSupportedException {
         Object result = super.clone();
 
-        ((Entity)result).head = ((Entity)result).tail = new Node();
-        ((Entity)result).head.next = ((Entity)result).tail;
-        ((Entity)result).tail.next = ((Entity)result).head;
-        ((Entity)result).size = 0;
+        ((Entity) result).head = ((Entity) result).tail = new Node();
+        ((Entity) result).head.next = ((Entity) result).tail;
+        ((Entity) result).tail.next = ((Entity) result).head;
+        ((Entity) result).size = 0;
 
         Account[] accounts = getAccounts();
 
-        for (int i = 0; i < ((Entity)result).getSize(); ++i) {
-            ((Entity)result).addNode(new Node(accounts[i]));
+        for (int i = 0; i < ((Entity) result).getSize(); ++i) {
+            ((Entity) result).addNode(new Node(accounts[i]));
         }
         return result;
     }
@@ -495,7 +496,8 @@ class Node {
     Account value;
     Node next;
 
-    public Node() { }
+    public Node() {
+    }
 
     public Node(Account value) {
         this.value = value;
