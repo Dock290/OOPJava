@@ -25,7 +25,7 @@ public class DebitAccount extends AbstractAccount implements Cloneable {
     @Override
     public String toString()
     {
-        return "Debut account: " +
+        return "Debit account: " +
                 super.toString();
     }
 
