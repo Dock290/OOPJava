@@ -4,7 +4,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-//todo копирование массива без null'ов по контракту класс осуществляется ТОЛЬКО при УДАЛЕНИИ элемента
 public class Individual implements Client {
     private static int DEF_SIZE = 16;
     private static int DEF_CREDIT_SCORE = 0;
@@ -16,8 +15,6 @@ public class Individual implements Client {
 
     public Individual(String name) {
         Objects.requireNonNull(name, "name is null");
-        //todo числа в константы
-        // Сделал
         accounts = new Account[DEF_SIZE];
         size = DEF_SIZE;
         this.name = name;
@@ -65,8 +62,6 @@ public class Individual implements Client {
                 return true;
             }
         }
-        //todo увеличение размера массива должен делать отдельный метод
-        // Добавил метод
 
         doubleAccountsArraySize();
 
@@ -82,8 +77,6 @@ public class Individual implements Client {
 
         Objects.requireNonNull(account, "account is null");
 
-        //todo сравнение вынести в отдельный метод
-        // Добавил метод, все повторения заменил на использование метода
         if (isNumberMatchFound(account.getNumber())) {
             throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
         }
@@ -201,8 +194,7 @@ public class Individual implements Client {
 
         Account changedAccount = accounts[index];
         accounts[index] = null;
-        //todo почему у одинаковых по назначению методов (этого и следующего) такие отличия в функционале?
-        // Исправил. Теперь из следующих двух методов удаления вызывается метод удаления по индексу.
+
         if (size - index + 1 >= 0) {
             System.arraycopy(accounts, index + 1, accounts, index, size - index + 1);
         }
@@ -249,8 +241,6 @@ public class Individual implements Client {
     }
 
     public Account[] getAccounts() {
-        //todo почему не System.arraycopy на индекс левее при нахождении null?
-        // Заменил на System.arraycopy
         Account[] result = new Account[size];
         System.arraycopy(accounts, 0, result, 0, size);
 
@@ -258,9 +248,6 @@ public class Individual implements Client {
     }
 
     public Account[] sortedAccountsByBalance() {
-        //todo это не входит в контракт метода, он должен сортировать, а не удалять null'ы
-        // Исправил
-
         Account[] result = new Account[size];
         System.arraycopy(accounts, 0, result, 0, size);
 
@@ -299,8 +286,6 @@ public class Individual implements Client {
 
         int j = 0;
         for (int i = 0; i < size; ++i) {
-            //todo System.arraycopy?
-            // Заменил на System.arraycopy
             if (accounts[i] != null) {
                 if (accounts[i].getClass() == CreditAccount.class) {
                     System.arraycopy(accounts, i, result, j, 1);
@@ -372,8 +357,6 @@ public class Individual implements Client {
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-        //todo почему не паттерн для проверки?
-        // Заменил на паттерн
         return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 

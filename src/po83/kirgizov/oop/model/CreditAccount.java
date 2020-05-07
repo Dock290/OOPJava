@@ -41,8 +41,6 @@ public class CreditAccount extends AbstractAccount implements Credit, Cloneable 
     @Override
     public double getNextPaymentValue() {
         double result = getBalance() * (1 + getAnnualPercentageRate() *
-                //todo почему умножение на 0.1? в формуле этого не было
-                // Убрал
                 Period.between(LocalDate.now(), getExpirationDate()).getYears())
                 / monthsQuantityBeforeExpiration();
         return result < 0 ? -result : result;
@@ -60,8 +58,6 @@ public class CreditAccount extends AbstractAccount implements Credit, Cloneable 
         return result;
     }
 
-    //todo уже можно пользоваться StringBuilder и String.format
-    // Добавил String.format. Среда разработки предлагает заменить StringBuilder на String
     @Override
     public String toString() {
         return "Credit account - " +
@@ -95,8 +91,6 @@ public class CreditAccount extends AbstractAccount implements Credit, Cloneable 
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "number is null");
-        //todo почему не паттерн для проверки номера?
-        // Добавил
         return !Pattern.matches("^4[45]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }

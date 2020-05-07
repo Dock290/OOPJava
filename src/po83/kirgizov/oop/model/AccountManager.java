@@ -4,9 +4,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-//todo комментарии из Individual применимы сюда
-// Добавил System.arraycopy в методы getClients, remove(Client client), getDebtors, getWickedDebtors
-// Изменил метод sortedClientsByBalance. Не удаляет null-элементы, использует System.arraycopy
 public class AccountManager {
     private static int DEF_SIZE = 16;
 
@@ -14,8 +11,6 @@ public class AccountManager {
     int size;
 
     public AccountManager() {
-        //todo вынести числа в константу
-        // Сделал
         clients = new Client[DEF_SIZE];
         size = DEF_SIZE;
     }
@@ -226,8 +221,6 @@ public class AccountManager {
         if (isNumberNotFormatted(accountNumber)) {
             throw new InvalidAccountNumberException("account number has wrong format");
         }
-        //todo что с именованием переменных? для чего они служат?
-        // Исправил названия переменных, немного изменил метод
 
         int indexOfClient, indexOfAccount;
         indexOfClient = indexOfAccount = 0;
@@ -327,8 +320,6 @@ public class AccountManager {
 
     private boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-        //todo паттерн?
-        // Добавил
         return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }

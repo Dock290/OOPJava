@@ -15,8 +15,6 @@ public class Entity implements Client {
 
     public Entity(String name) {
         Objects.requireNonNull(name, "name is null");
-        //todo числа в константы
-        // Сделал
         this.name = name;
         head = null;
         tail = null;
@@ -135,8 +133,6 @@ public class Entity implements Client {
     public boolean add(Account account) throws DuplicateAccountNumberException {
         Objects.requireNonNull(account, "account is null");
 
-        //todo повторяющееся сравнение в отдельный метод
-        // Добавил метод, все повторения заменил на использование метода
         if (isNumberMatchFound(account.getNumber()))
         {
             throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
@@ -436,8 +432,6 @@ public class Entity implements Client {
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-        //todo паттерн?
-        // Добавил
         return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 

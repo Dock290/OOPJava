@@ -96,8 +96,6 @@ public abstract class AbstractAccount implements Account, Cloneable {
     }
 
     @Override
-    //todo StringBuilder или String.format?
-    // Добавил String.format. Среда разработки предлагает заменить StringBuilder на String
     public String toString() {
         return "number: " +
                 getNumber() +

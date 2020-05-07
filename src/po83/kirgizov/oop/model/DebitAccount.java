@@ -47,8 +47,6 @@ public class DebitAccount extends AbstractAccount implements Cloneable {
     @Override
     public boolean isNumberNotFormatted(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
-        //todo паттерн?
-        // Добавил
         return !Pattern.matches("^40\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }
