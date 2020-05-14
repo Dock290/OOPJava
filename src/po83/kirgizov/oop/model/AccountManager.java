@@ -1,12 +1,18 @@
 package po83.kirgizov.oop.model;
 
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
 public class AccountManager {
+    private static int DEF_SIZE = 16;
+
     private Client[] clients;
     int size;
 
     public AccountManager() {
-        clients = new Client[16];
-        size = 16;
+        clients = new Client[DEF_SIZE];
+        size = DEF_SIZE;
     }
 
     public AccountManager(int size) {
@@ -15,22 +21,35 @@ public class AccountManager {
     }
 
     public AccountManager(Client[] clients) {
+        Objects.requireNonNull(clients, "clients array is null");
+
         size = clients.length;
         this.clients = clients;
     }
 
 
-    public boolean add(Client client) {
+    public boolean add(Client client) throws NullPointerException {
+        Objects.requireNonNull(client, "client is null");
+
         for (int i = 0; i < size; ++i) {
             if (clients[i] == null) {
                 clients[i] = client;
                 return true;
             }
         }
+
         return false;
     }
 
     public boolean add(int index, Client client) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
+        Objects.requireNonNull(client, "client is null");
+
         if (clients[index] == null) {
             clients[index] = client;
             return true;
@@ -39,17 +58,37 @@ public class AccountManager {
         }
     }
 
-    public Client get(int index) {
-        return clients[index];
-    }
-
     public Client set(int index, Client client) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
+        Objects.requireNonNull(client, "client is null");
+
         Client changedClient = clients[index];
         clients[index] = client;
         return changedClient;
     }
 
+    public Client get(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
+        return clients[index];
+    }
+
     public Client remove(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
         Client changedClient = clients[index];
         clients[index] = null;
         return changedClient;
@@ -60,57 +99,31 @@ public class AccountManager {
     }
 
     public Client[] getClients() {
-        int resSize = 0;
+        Client[] result = new Client[size];
 
-        for (int i = 0; i < size; ++i) {
-            if (clients[i] != null) {
-                resSize++;
-            }
-        }
-
-        Client[] result = new Client[resSize];
-        int j = 0;
-
-        for (int i = 0; i < size; ++i) {
-            if (clients[i] != null) {
-                result[j++] = clients[i];
-            }
-        }
+        System.arraycopy(clients, 0, result, 0, size);
 
         return result;
     }
 
     public Client[] sortedClientsByBalance() {
-        Client[] result = getClients();
-        int[] resultBalance = new int[result.length];
+        Client[] result = new Client[size];
+        System.arraycopy(clients, 0, result, 0, size);
 
-        for (int i = 0; i < result.length; ++i) {
-            for (Account account : result[i].getAccounts()) {
-                resultBalance[i] += account.getBalance();
-            }
-        }
-
-        if (result.length == 0) {
-            return null;
-        }
-
-        Client bufferClient;
-        int bufferBalance;
+        Client buffer;
         boolean isSorted = false;
 
         while (!isSorted) {
-            for (int i = 0; i < result.length - 1; i++) {
-                isSorted = true;
-                if (resultBalance[i] > resultBalance[i + 1]) {
-                    isSorted = false;
+            isSorted = true;
+            for (int i = 0; i < size - 1; i++) {
+                if (result[i + 1] != null) {
+                    if (result[i] == null || result[i].totalBalance() > result[i + 1].totalBalance()) {
+                        isSorted = false;
 
-                    bufferClient = result[i];
-                    result[i] = result[i + 1];
-                    result[i + 1] = bufferClient;
-
-                    bufferBalance = resultBalance[i];
-                    resultBalance[i] = resultBalance[i + 1];
-                    resultBalance[i + 1] = bufferBalance;
+                        buffer = result[i];
+                        result[i] = result[i + 1];
+                        result[i + 1] = buffer;
+                    }
                 }
             }
         }
@@ -119,78 +132,129 @@ public class AccountManager {
     }
 
     public Account getAccount(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("account number has wrong format");
+        }
+
         Account[] buffer;
 
         for (int i = 0; i < size; ++i) {
-            buffer = clients[i].getAccounts();
-            for (int j = 0; j < buffer.length; ++j) {
-                if (buffer[i].getNumber().equals(accountNumber)) {
-                    return buffer[i];
+            if (clients[i] != null) {
+                buffer = clients[i].getAccounts();
+                for (Account account : buffer) {
+                    if (account != null) {
+                        if (account.getNumber().equals(accountNumber)) {
+                            return account;
+                        }
+                    }
                 }
             }
         }
 
-        return null;
+        throw new NoSuchElementException(String.format("account %s not found", accountNumber));
     }
 
     public Account removeAccount(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("account number has wrong format");
+        }
+
+        Account result = null;
         Account[] buffer;
 
         for (int i = 0; i < size; ++i) {
             buffer = clients[i].getAccounts();
             for (int j = 0; j < buffer.length; ++j) {
                 if (buffer[i].getNumber().equals(accountNumber)) {
-                    Account result = buffer[i];
+                    result = buffer[i];
                     buffer[i] = null;
-                    return result;
+                    break;
                 }
             }
         }
 
-        return null;
+        if (Objects.isNull(result)) {
+            throw new NoSuchElementException(String.format("account %s not found", accountNumber));
+        }
+
+        return result;
     }
 
     public boolean remove(Client client) {
-        boolean isDeleted = false;
+        Objects.requireNonNull(client, "client is null");
 
         for (int i = 0; i < size; ++i) {
-            if (!isDeleted) {
-                if (clients[i].equals(client)) {
-                    clients[i] = null;
-                    isDeleted = true;
+            if (clients[i].equals(client)) {
+                clients[i] = null;
+                if (size - i + 1 >= 0) {
+                    System.arraycopy(clients, i + 1, clients, i, size - i + 1);
                 }
-            } else if (i < size - 1) {
-                clients[i] = clients[i + 1];
+                return true;
             }
         }
 
-        return isDeleted;
+        return false;
     }
 
     public int indexOf(Client client) {
+        Objects.requireNonNull(client, "client is null");
+
         for (int i = 0; i < size; ++i) {
-            if (clients[i].equals(client)) {
-                return i;
+            if (clients[i] != null) {
+                if (clients[i].equals(client)) {
+                    return i;
+                }
             }
         }
 
         return -1;
     }
 
-    public Account setAccount(String accountNumber, Account account) {
-        Account result;
+    public Account setAccount(String accountNumber, Account account) throws DuplicateAccountNumberException {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+        Objects.requireNonNull(account, "account is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("account number has wrong format");
+        }
+
+        int indexOfClient, indexOfAccount;
+        indexOfClient = indexOfAccount = 0;
+        Account result = null;
+
+        Account[] bufferAccounts;
 
         for (int i = 0; i < size; ++i) {
-            for (int j = 0; j < clients[i].getSize(); ++j) {
-                if (clients[i].getAccounts()[j].getNumber().equals(accountNumber)) {
-                    result = clients[i].getAccounts()[j];
-                    clients[i].getAccounts()[j] = account;
-                    return result;
+            if (clients[i] != null) {
+                bufferAccounts = clients[i].getAccounts();
+                for (int j = 0; j < bufferAccounts.length; ++j) {
+                    if (bufferAccounts[j].getNumber().equals(account.getNumber())) {
+                        throw new DuplicateAccountNumberException(
+                                String.format("account with number %s already exists", account.getNumber())
+                        );
+                    }
+
+                    if (bufferAccounts[j].getNumber().equals(accountNumber)) {
+                        result = bufferAccounts[j];
+                        indexOfClient = i;
+                        indexOfAccount = j;
+                        break;
+                    }
                 }
             }
         }
 
-        return null;
+        if (Objects.isNull(result)) {
+            throw new NoSuchElementException(String.format("account %s not found", accountNumber));
+        }
+
+        clients[indexOfClient].set(indexOfAccount, account);
+
+        return result;
     }
 
     public Client[] getDebtors() {
@@ -209,7 +273,7 @@ public class AccountManager {
         for (int i = 0; i < size; i++) {
             if (clients[i] != null) {
                 if (clients[i].getCreditAccounts().length > 0) {
-                    result[j] = clients[i];
+                    System.arraycopy(clients, i, result, j, 1);
                     j++;
                 }
             }
@@ -234,7 +298,8 @@ public class AccountManager {
         for (int i = 0; i < size; i++) {
             if (clients[i] != null) {
                 if (clients[i].getStatus() == ClientStatus.BAD && clients[i].getCreditAccounts().length > 0) {
-                    result[j] = clients[i];
+                    System.arraycopy(clients, i, result, j, 1);
+                    j++;
                 }
             }
         }
@@ -251,5 +316,10 @@ public class AccountManager {
             }
         }
         return result.toString();
+    }
+
+    private boolean isNumberNotFormatted(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+        return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 }

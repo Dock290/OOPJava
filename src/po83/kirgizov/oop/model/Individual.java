@@ -1,39 +1,61 @@
 package po83.kirgizov.oop.model;
 
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
 public class Individual implements Client {
+    private static int DEF_SIZE = 16;
+    private static int DEF_CREDIT_SCORE = 0;
+
     private String name;
     private int size;
     protected Account[] accounts;
     private int creditScore;
 
-    public Individual() {
-        accounts = new Account[16];
-        size = 16;
-        name = "";
-        creditScore = 0;
+    public Individual(String name) {
+        Objects.requireNonNull(name, "name is null");
+        accounts = new Account[DEF_SIZE];
+        size = DEF_SIZE;
+        this.name = name;
+        creditScore = DEF_CREDIT_SCORE;
     }
 
-    public Individual(int size) {
+    public Individual(String name, int size) {
+        Objects.requireNonNull(name, "name is null");
+
         accounts = new Account[size];
         this.size = size;
-        name = "";
-        creditScore = 0;
+        this.name = name;
+        creditScore = DEF_SIZE;
     }
 
-    public Individual(Account[] accounts) {
+    public Individual(String name, Account[] accounts) {
+        Objects.requireNonNull(name, "name is null");
+        Objects.requireNonNull(accounts, "accounts array is null");
+
         size = accounts.length;
         this.accounts = new Account[size];
 
         for (int i = 0; i < size; ++i) {
-            this.accounts[i] = new DebitAccount(accounts[i].getNumber(), accounts[i].getBalance());
+            this.accounts[i] = new DebitAccount(
+                    accounts[i].getNumber(), accounts[i].getBalance(),
+                    accounts[i].getCreationDate(), accounts[i].getExpirationDate()
+            );
         }
 
-        name = "";
+        this.name = name;
         creditScore = 0;
     }
 
 
-    public boolean add(Account account) {
+    public boolean add(Account account) throws DuplicateAccountNumberException {
+        Objects.requireNonNull(account, "account is null");
+
+        if (isNumberMatchFound(account.getNumber())) {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+        }
+
         for (int i = 0; i < size; ++i) {
             if (accounts[i] == null) {
                 accounts[i] = account;
@@ -41,24 +63,24 @@ public class Individual implements Client {
             }
         }
 
-        Account[] newAccounts = new Account[size * 2];
-        for (int i = 0; i < size * 2; ++i) {
-            if (i < accounts.length) {
-                newAccounts[i] = accounts[i];
-            } else {
-                if (newAccounts[i] == null) {
-                    newAccounts[i] = account;
-                    accounts = newAccounts;
-                    size *= 2;
-                    return true;
-                }
-            }
-        }
+        doubleAccountsArraySize();
 
-        return false;
+        return add(account);
     }
 
-    public boolean add(int index, Account account) {
+    public boolean add(int index, Account account) throws DuplicateAccountNumberException {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
+        Objects.requireNonNull(account, "account is null");
+
+        if (isNumberMatchFound(account.getNumber())) {
+            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+        }
+
         if (accounts[index] == null) {
             accounts[index] = account;
             return true;
@@ -72,16 +94,38 @@ public class Individual implements Client {
     }
 
     public Account get(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
         return accounts[index];
     }
 
     public Account get(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("accountNumber has wrong format");
+        }
+
+        Account result = null;
+
         for (int i = 0; i < size; ++i) {
-            if (accounts[i].getNumber().equals(accountNumber)) {
-                return accounts[i];
+            if (accounts[i] != null) {
+                if (accounts[i].getNumber().equals(accountNumber)) {
+                    result = accounts[i];
+                    break;
+                }
             }
         }
-        return null;
+
+        if (Objects.isNull(result)) {
+            throw new NoSuchElementException("account with number " + accountNumber + " not found");
+        }
+
+        return result;
     }
 
     public int getCreditScore() {
@@ -89,9 +133,13 @@ public class Individual implements Client {
     }
 
     public int indexOf(Account account) {
+        Objects.requireNonNull(account, "account is null");
+
         for (int i = 0; i < size; ++i) {
-            if (accounts[i].equals(account)) {
-                return i;
+            if (accounts[i] != null) {
+                if (accounts[i].equals(account)) {
+                    return i;
+                }
             }
         }
 
@@ -99,66 +147,93 @@ public class Individual implements Client {
     }
 
     public boolean hasAccount(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("accountNumber has wrong format");
+        }
+
         for (int i = 0; i < size; ++i) {
-            if (accounts[i].getNumber().equals(accountNumber)) {
-                return true;
+            if (accounts[i] != null) {
+                if (accounts[i].getNumber().equals(accountNumber)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    public Account set(int index, Account account) {
+    public Account set(int index, Account account) throws DuplicateAccountNumberException {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
+
+        Objects.requireNonNull(account, "account is null");
+
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i] != null) {
+                if (accounts[i].getNumber().equals(account.getNumber())) {
+                    throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+                }
+            }
+        }
+
         Account changedAccount = accounts[index];
         accounts[index] = account;
         return changedAccount;
     }
 
     public Account remove(int index) {
-        Account changedAccount = null;
+        if (index >= size) {
+            throw new IndexOutOfBoundsException("index is greater than size");
+        } else if (index < 0) {
+            throw new IndexOutOfBoundsException("index is less than zero");
+        }
 
-        if (index < size) {
-            changedAccount = accounts[index];
-            accounts[index] = null;
+        Account changedAccount = accounts[index];
+        accounts[index] = null;
 
-            if (size - index + 1 >= 0) System.arraycopy(accounts, index + 1, accounts, index, size - index + 1);
+        if (size - index + 1 >= 0) {
+            System.arraycopy(accounts, index + 1, accounts, index, size - index + 1);
         }
 
         return changedAccount;
     }
 
     public Account remove(String accountNumber) {
-        Account changedAccount = null;
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+
+        if (isNumberNotFormatted(accountNumber)) {
+            throw new InvalidAccountNumberException("accountNumber has wrong format");
+        }
+
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
                 if (accounts[i].getNumber().equals(accountNumber)) {
-                    changedAccount = accounts[i];
-                    accounts[i] = null;
-                    i--;
+                    return remove(i);
                 }
             }
-
-            if (changedAccount != null && i < size - 1) {
-                accounts[i] = accounts[i + 1];
-            }
         }
-        return changedAccount;
+
+        throw new NoSuchElementException("account with number " + accountNumber + " not found");
     }
 
     @Override
     public boolean remove(Account account) {
-        boolean isDeleted = false;
+        Objects.requireNonNull(account, "account is null");
+
         for (int i = 0; i < size; ++i) {
-            if (!isDeleted) {
+            if (accounts[i] != null) {
                 if (accounts[i].equals(account)) {
-                    accounts[i] = null;
-                    isDeleted = true;
-                    i--;
+                    remove(i);
+                    return true;
                 }
-            } else if (i < size - 1) {
-                accounts[i] = accounts[i + 1];
             }
         }
-        return isDeleted;
+
+        return false;
     }
 
     public int getSize() {
@@ -167,37 +242,23 @@ public class Individual implements Client {
 
     public Account[] getAccounts() {
         Account[] result = new Account[size];
-
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                result[i] = accounts[i];
-            } else {
-                result[i] = new DebitAccount();
-            }
-        }
+        System.arraycopy(accounts, 0, result, 0, size);
 
         return result;
     }
 
     public Account[] sortedAccountsByBalance() {
         Account[] result = new Account[size];
-
-        int j = 0;
-        for (int i = 0; i < size; ++i) {
-            if (accounts[i] != null) {
-                result[j] = accounts[i];
-                j++;
-            }
-        }
+        System.arraycopy(accounts, 0, result, 0, size);
 
         Account buffer;
         boolean isSorted = false;
 
         while (!isSorted) {
+            isSorted = true;
             for (int i = 0; i < size - 1; i++) {
-                if (result[i] != null && result[i + 1] != null) {
-                    isSorted = true;
-                    if (result[i].getBalance() > result[i + 1].getBalance()) {
+                if (result[i + 1] != null) {
+                    if (result[i] == null || result[i].getBalance() > result[i + 1].getBalance()) {
                         isSorted = false;
 
                         buffer = result[i];
@@ -205,12 +266,6 @@ public class Individual implements Client {
                         result[i + 1] = buffer;
                     }
                 }
-            }
-        }
-
-        for (int i = 0; i < size; ++i) {
-            if (result[i] == null) {
-                result[i] = new DebitAccount();
             }
         }
 
@@ -233,7 +288,7 @@ public class Individual implements Client {
         for (int i = 0; i < size; ++i) {
             if (accounts[i] != null) {
                 if (accounts[i].getClass() == CreditAccount.class) {
-                    result[j] = accounts[i];
+                    System.arraycopy(accounts, i, result, j, 1);
                     j++;
                 }
             }
@@ -247,8 +302,10 @@ public class Individual implements Client {
         double result = 0;
 
         for (int i = 0; i < size; ++i) {
-            if (accounts[i].getClass() == CreditAccount.class) {
-                result += accounts[i].getBalance();
+            if (accounts[i] != null) {
+                if (accounts[i].getClass() == CreditAccount.class) {
+                    result += accounts[i].getBalance();
+                }
             }
         }
 
@@ -256,6 +313,8 @@ public class Individual implements Client {
     }
 
     public void setName(String name) {
+        Objects.requireNonNull(name, "name is null");
+
         this.name = name;
     }
 
@@ -272,6 +331,33 @@ public class Individual implements Client {
         }
 
         return result;
+    }
+
+    private void doubleAccountsArraySize()
+    {
+        Account[] newAccounts = new Account[size * 2];
+
+        System.arraycopy(accounts, 0, newAccounts, 0, size);
+        size *= 2;
+
+        accounts = newAccounts;
+    }
+
+    private boolean isNumberMatchFound(String accountNumber) {
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i] != null) {
+                if (accounts[i].getNumber().equals(accountNumber)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isNumberNotFormatted(String accountNumber) {
+        Objects.requireNonNull(accountNumber, "accountNumber is null");
+        return !Pattern.matches("^4[045]\\d{3}810\\d(?!0{4})\\d{4}(?!0{7})\\d{7}$", accountNumber);
     }
 
     @Override
@@ -291,7 +377,9 @@ public class Individual implements Client {
         int result = name.hashCode() ^ creditScore;
 
         for (Account a : accounts) {
-            result ^= a.hashCode();
+            if (a != null) {
+                result ^= a.hashCode();
+            }
         }
 
         return result;
@@ -299,10 +387,12 @@ public class Individual implements Client {
 
     @Override
     public boolean equals(Object o) {
-        if ((getClass() == o.getClass()) && (size == ((Individual) o).getSize())) {
+        if ((getClass() == o.getClass()) && name.equals(((Individual) o).getName()) && (size == ((Individual) o).getSize())) {
             for (int i = 0; i < size; i++) {
-                if (!accounts[i].equals(((Individual) o).accounts[i])) {
-                    return false;
+                if (accounts[i] != null) {
+                    if (!accounts[i].equals(((Individual) o).accounts[i])) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -312,6 +402,23 @@ public class Individual implements Client {
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Object result = super.clone();
+
+        Account[] resultAccounts = new Account[size];
+
+        for (int i = 0; i < size; ++i) {
+            if (accounts[i].getClass() == DebitAccount.class) {
+                resultAccounts[i] = new DebitAccount(accounts[i].getNumber(), accounts[i].getBalance(),
+                        accounts[i].getCreationDate(), accounts[i].getExpirationDate());
+            } else if (accounts[i].getClass() == CreditAccount.class) {
+                resultAccounts[i] = new CreditAccount(accounts[i].getNumber(), accounts[i].getBalance(),
+                        ((CreditAccount) accounts[i]).getAnnualPercentageRate(),
+                        accounts[i].getCreationDate(), accounts[i].getExpirationDate());
+            }
+        }
+
+        ((Individual) result).accounts = resultAccounts;
+
+        return result;
     }
 }
