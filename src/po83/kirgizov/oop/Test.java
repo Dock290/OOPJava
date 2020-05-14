@@ -2,6 +2,10 @@ package po83.kirgizov.oop;
 
 import po83.kirgizov.oop.model.*;
 
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Iterator;
+
 public class Test {
     public static void main(String[] args) {
         lab6tests();
@@ -14,9 +18,191 @@ public class Test {
         System.out.println("Готово!");
     }
 
-    static void lab6tests()
-    {
+    static void lab6tests() {
+        {
+            Account[] accounts = new Account[5];
+            accounts[0] = new DebitAccount("40000810100010000004", 63.324, LocalDate.now(), LocalDate.now().plusMonths(1));
+            accounts[1] = new CreditAccount("44000810100010000002", -6.534534, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            accounts[2] = new DebitAccount("40000810100010000003", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+            accounts[3] = new CreditAccount("44000810100010000001", -5.43, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            accounts[4] = new DebitAccount("40000810100010000005", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
 
+
+            System.out.println("Проверка сортировки:");
+
+            Account[] a1 = new Account[accounts.length];
+            a1[0] = new DebitAccount("40000810100010000004", 63.324, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a1[1] = new CreditAccount("44000810100010000002", -6.534534, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a1[2] = new DebitAccount("40000810100010000003", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a1[3] = new CreditAccount("44000810100010000001", -5.43, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a1[4] = new DebitAccount("40000810100010000005", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            Arrays.sort(a1);
+            for (Account a : a1) {
+                System.out.println(a);
+            }
+
+            Account[] a2 = new Account[accounts.length];
+            a2[0] = new DebitAccount("40000810100010000004", 63.324, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a2[1] = new CreditAccount("44000810100010000002", -6.534534, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a2[2] = new DebitAccount("40000810100010000003", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a2[3] = new CreditAccount("44000810100010000001", -5.43, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a2[4] = new DebitAccount("40000810100010000005", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            System.out.println();
+
+            Entity e1 = new Entity("E1", a2);
+            for (Account a : e1.sortedAccountsByBalance()) {
+                System.out.println(a);
+            }
+
+            System.out.println();
+
+            Account[] a3 = new Account[accounts.length];
+            a3[0] = new DebitAccount("40000810100010000004", 63.324, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a3[1] = new CreditAccount("44000810100010000002", -6.534534, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a3[2] = new DebitAccount("40000810100010000003", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a3[3] = new CreditAccount("44000810100010000001", -5.43, 10, LocalDate.now(), LocalDate.now().plusMonths(1));
+            a3[4] = new DebitAccount("40000810100010000005", 5.43, LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            Individual i1 = new Individual("I1", a3);
+            for (Account a : i1.sortedAccountsByBalance()) {
+                System.out.println(a);
+            }
+
+            System.out.println();
+            System.out.println("Проверка итераторов:");
+
+            Iterator<Account> iterator1 = e1.iterator();
+            while (iterator1.hasNext()) {
+                System.out.println(iterator1.next());
+            }
+
+            System.out.println();
+
+            for (Account account : e1) {
+                System.out.println(account);
+            }
+
+            System.out.println();
+            System.out.println("Проверка компаратора Client");
+
+            Client[] clients1 = new Client[3];
+            a1[0].setBalance(a1[0].getBalance() + 2);
+            clients1[0] = new Entity("CE1", a1);
+            a2[0].setBalance(a2[0].getBalance() + 3);
+            clients1[1] = new Individual("CI2", a2);
+            a3[0].setBalance(a3[0].getBalance() + 1);
+            clients1[2] = new Entity("CE3", a3);
+
+            Arrays.sort(clients1);
+
+            for (Client c : clients1) {
+                System.out.println(c.getName() + " " + c.totalBalance());
+            }
+
+            System.out.println();
+            System.out.println("Проверка изменённых методов:");
+
+            System.out.println(e1.get("40000810100010000004"));
+            System.out.println(i1.get("40000810100010000004"));
+
+            System.out.println(e1.hasAccount("44000810100010000002"));
+            System.out.println(i1.hasAccount("44000810100010000002"));
+
+            System.out.println(e1.debtTotal());
+            System.out.println(i1.debtTotal());
+
+            {
+                Account[] creditAccounts;
+
+                creditAccounts = e1.getCreditAccounts();
+
+                for (Account account : creditAccounts) {
+                    System.out.println(account);
+                }
+
+                System.out.println();
+
+                creditAccounts = i1.getCreditAccounts();
+
+                for (Account account : creditAccounts) {
+                    System.out.println(account);
+                }
+            }
+        }
+
+        {
+            DebitAccount da1 = new DebitAccount("40000810100010000001", 1000,
+                    LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            DebitAccount da2 = new DebitAccount("40000810100010000002", 200.15,
+                    LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            CreditAccount ca1 = new CreditAccount("44000810100010000001", -2100, 25,
+                    LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            CreditAccount ca2 = new CreditAccount("44000810100010000002", -100.15, 75,
+                    LocalDate.now(), LocalDate.now().plusMonths(1));
+
+            try {
+                System.out.println("Проверка методов:");
+                Account[] accounts;
+
+                Individual i1 = new Individual("Dmitriy");
+
+                i1.add(ca1);
+                i1.add(new DebitAccount("40000810100010000003", 87.4,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                i1.add(ca2);
+                i1.add(new DebitAccount("40000810100010000004", 27.908,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                i1.add(new DebitAccount("40000810100010000005", 93,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                i1.add(new CreditAccount("45000810100010000003", -456.3, 50,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                i1.addCreditScores(-10);
+
+                Individual i2 = new Individual("Vasiliy", 2);
+
+                i2.add(da1);
+                i2.add(da2);
+
+                Entity e1 = new Entity("Anatoly");
+
+                e1.add(new CreditAccount("45000810100010000004", -320, 10,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                e1.add(new CreditAccount("45000810100010000005", -520, 10,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                e1.add(new CreditAccount("45000810100010000006", -380, 10,
+                        LocalDate.now(), LocalDate.now().plusMonths(1)));
+                e1.addCreditScores(5);
+
+
+                AccountManager am = new AccountManager();
+
+                am.add(i1);
+                am.add(i2);
+                am.add(e1);
+
+                System.out.println("\nAccount Manager: all:");
+                System.out.println(am);
+
+                System.out.println("\nAccount Manager: debtors:");
+                for (Client client : am.getDebtors()) {
+                    System.out.println(client.getName());
+                }
+
+                System.out.println("\nAccount Manager: wicked debtors:");
+                for (Client client : am.getWickedDebtors()) {
+                    System.out.println(client.getName());
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+            }
+        }
+
+        System.out.println();
     }
 
     /*static void lab5tests() {

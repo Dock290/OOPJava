@@ -135,4 +135,15 @@ public abstract class AbstractAccount implements Account, Cloneable {
 
         return result;
     }
+
+    @Override
+    public int compareTo(Account o) {
+        if (Objects.isNull(o)) {
+            return 1;
+        }
+        else
+        {
+            return Double.compare(balance, o.getBalance());
+        }
+    }
 }
