@@ -2,7 +2,7 @@ package po83.kirgizov.oop.model;
 
 import java.time.LocalDate;
 
-public interface Account {
+public interface Account extends Comparable<Account> {
     void setNumber(String number);
 
     void setBalance(double balance);
