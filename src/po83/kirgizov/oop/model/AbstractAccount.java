@@ -91,7 +91,7 @@ public abstract class AbstractAccount implements Account, Cloneable {
         Period period = Period.between(
                 LocalDate.now().getDayOfMonth() < 25 ? LocalDate.now() : LocalDate.now().plusMonths(1),
                 expirationDate.getDayOfMonth() < 25 ? expirationDate : expirationDate.plusMonths(1));
-        int result = period.getYears() * 12 + period.getMonths();
+        int result = period.getYears() * 12 + (int)period.toTotalMonths();
         return result == 0 ? 1 : result;
     }
 
@@ -116,9 +116,9 @@ public abstract class AbstractAccount implements Account, Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        return o.getClass() == this.getClass() && number.equals(((AbstractAccount) o).number) &&
+        return !Objects.isNull(o) && (o.getClass() == this.getClass() && number.equals(((AbstractAccount) o).number) &&
                 balance == (((AbstractAccount) o).balance) && creationDate.equals(((AbstractAccount) o).creationDate) &&
-                expirationDate.equals(((AbstractAccount) o).expirationDate);
+                expirationDate.equals(((AbstractAccount) o).expirationDate));
     }
 
     @Override

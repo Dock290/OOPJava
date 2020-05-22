@@ -1,9 +1,6 @@
 package po83.kirgizov.oop.model;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class AccountManager implements Iterable<Client> {
@@ -108,11 +105,9 @@ public class AccountManager implements Iterable<Client> {
         return result;
     }
 
-    public Client[] sortedClientsByBalance() {
-        Client[] result = clients.clone();
-
-        Arrays.sort(result);
-
+    public List<Client> sortedClientsByBalance() {
+        ArrayList<Client> result = new ArrayList<>(Arrays.asList(clients));
+        Collections.sort(result);
         return result;
     }
 
@@ -245,55 +240,29 @@ public class AccountManager implements Iterable<Client> {
         return result;
     }
 
-    public Client[] getDebtors() {
-        int newSize = 0;
+    public Set<Client> getDebtors() {
+        HashSet<Client> result = new HashSet<>();
+
         for (Client client : this) {
             if (!Objects.isNull(client)) {
-                if (client.getCreditAccounts().length > 0) {
-                    newSize++;
+                if (client.getCreditAccounts().size() > 0) {
+                    result.add(client);
                 }
             }
-        }
-
-        Client[] result = new Client[newSize];
-
-        int index = 0;
-        int resultIndex = 0;
-        for (Client client : this) {
-            if (!Objects.isNull(client)) {
-                if (client.getCreditAccounts().length > 0) {
-                    System.arraycopy(clients, index, result, resultIndex, 1);
-                    resultIndex++;
-                }
-            }
-            index++;
         }
 
         return result;
     }
 
-    public Client[] getWickedDebtors() {
-        int newSize = 0;
+    public Set<Client> getWickedDebtors() {
+        HashSet<Client> result = new HashSet<>();
+
         for (Client client : this) {
             if (!Objects.isNull(client)) {
-                if (client.getStatus() == ClientStatus.BAD) {
-                    newSize++;
+                if (client.getStatus() == ClientStatus.BAD && client.getCreditAccounts().size() > 0) {
+                    result.add(client);
                 }
             }
-        }
-
-        Client[] result = new Client[newSize];
-
-        int index = 0;
-        int resultIndex = 0;
-        for (Client client : this) {
-            if (!Objects.isNull(client)) {
-                if (client.getStatus() == ClientStatus.BAD && client.getCreditAccounts().length > 0) {
-                    System.arraycopy(clients, index, result, resultIndex, 1);
-                    resultIndex++;
-                }
-            }
-            index++;
         }
 
         return result;

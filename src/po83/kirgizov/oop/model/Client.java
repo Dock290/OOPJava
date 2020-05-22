@@ -1,12 +1,8 @@
 package po83.kirgizov.oop.model;
 
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
-public interface Client extends Iterable<Account>, Comparable<Client> {
-    boolean add(Account account) throws DuplicateAccountNumberException;
-
+public interface Client extends Iterable<Account>, Comparable<Client>, Collection<Account> {
     boolean add(int index, Account account) throws DuplicateAccountNumberException;
 
     void addCreditScores(int creditScores);
@@ -24,7 +20,7 @@ public interface Client extends Iterable<Account>, Comparable<Client> {
 
         Account result = null;
 
-        for (Account account : getAccounts()) {
+        for (Account account : toArray()) {
             if (account.getNumber().equals(accountNumber)) {
                 result = account;
                 break;
@@ -58,8 +54,6 @@ public interface Client extends Iterable<Account>, Comparable<Client> {
 
     int indexOf(Account account);
 
-    int getSize();
-
     default boolean hasAccount(String accountNumber) {
         Objects.requireNonNull(accountNumber, "accountNumber is null");
 
@@ -67,7 +61,7 @@ public interface Client extends Iterable<Account>, Comparable<Client> {
             throw new InvalidAccountNumberException("accountNumber has wrong format");
         }
 
-        for (Account account : getAccounts()) {
+        for (Account account : toArray()) {
             if (account.getNumber().equals(accountNumber)) {
                 return true;
             }
@@ -80,10 +74,9 @@ public interface Client extends Iterable<Account>, Comparable<Client> {
 
     Account remove(String accountNumber);
 
-    boolean remove(Account account);
-
-    default Account[] getAccounts() {
-        Account[] result = new Account[getSize()];
+    @Override
+    default Account[] toArray() {
+        Account[] result = new Account[size()];
 
         int index = 0;
         for (Account account : this) {
@@ -93,35 +86,36 @@ public interface Client extends Iterable<Account>, Comparable<Client> {
         return result;
     }
 
-    default Account[] sortedAccountsByBalance() {
-        Account[] result = getAccounts();
-        Arrays.sort(result);
-        return result;
-    }
-
-    default Account[] getCreditAccounts() {
-        int newSize = 0;
-
-        for (Account account : this) {
-            if (!Objects.isNull(account)) {
-                if (account.getClass() == CreditAccount.class) {
-                    newSize++;
-                }
-            }
-        }
-
-        Account[] creditAccounts = new Account[newSize];
+    @Override
+    default <T> T[] toArray(T[] a) {
+        Account[] result = new Account[size()];
 
         int index = 0;
         for (Account account : this) {
+            result[index++] = account;
+        }
+
+        return (T[]) result;
+    }
+
+    default List<Account> sortedAccountsByBalance() {
+        List<Account> result = new ArrayList<>(this);
+        Collections.sort(result);
+        return result;
+    }
+
+    default Collection<Credit> getCreditAccounts() {
+        LinkedList<Credit> result = new LinkedList<>();
+
+        for (Account account : this) {
             if (!Objects.isNull(account)) {
-                if (account.getClass() == CreditAccount.class) {
-                    creditAccounts[index++] = account;
+                if (account.getClass().equals(CreditAccount.class)) {
+                    result.add((Credit) account);
                 }
             }
         }
 
-        return creditAccounts;
+        return result;
     }
 
     default double debtTotal() {
