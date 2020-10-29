@@ -1,8 +1,6 @@
 package po83.kirgizov.oop.model;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Entity implements Client {
@@ -49,9 +47,18 @@ public class Entity implements Client {
             head = tail = new Node();
         }
 
-        tail.next = node;
-        tail = tail.next;
-        tail.next = head;
+        if (tail == head)
+        {
+            tail = node;
+            tail.next = head;
+            head.next = tail;
+        }
+        else
+        {
+            tail.next = node;
+            tail = tail.next;
+            tail.next = head;
+        }
         size++;
 
         return true;
@@ -104,11 +111,16 @@ public class Entity implements Client {
             current = current.next;
         }
 
-        Node buffer = current.next;
-        current.next = buffer.next;
+        Node result = current.next;
+        current.next = current.next.next;
         size--;
 
-        return buffer;
+        if (index == size)
+        {
+            tail = current;
+        }
+
+        return result;
     }
 
     private Account setNode(int index, Account account) {
@@ -129,16 +141,6 @@ public class Entity implements Client {
         current.value = account;
 
         return buffer;
-    }
-
-    public boolean add(Account account) throws DuplicateAccountNumberException {
-        Objects.requireNonNull(account, "account is null");
-
-        if (isNumberMatchFound(account.getNumber())) {
-            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
-        }
-
-        return addNode(new Node(account));
     }
 
     public boolean add(int index, Account account) throws DuplicateAccountNumberException {
@@ -200,10 +202,6 @@ public class Entity implements Client {
         return -1;
     }
 
-    public int getSize() {
-        return size;
-    }
-
     public Account remove(int index) {
         if (index >= size) {
             throw new IndexOutOfBoundsException("index is greater than size");
@@ -237,23 +235,6 @@ public class Entity implements Client {
         }
 
         return result;
-    }
-
-    public boolean remove(Account account) {
-        Objects.requireNonNull(account, "account is null");
-
-        Node current = head.next;
-
-        int index = 0;
-        for (Account buffer : this) {
-            if (buffer.equals(account)) {
-                remove(index);
-                return true;
-            }
-            index++;
-        }
-
-        return false;
     }
 
     public void setName(String name) {
@@ -311,9 +292,9 @@ public class Entity implements Client {
 
     @Override
     public boolean equals(Object o) {
-        if ((this.getClass() == o.getClass()) &&
+        if (!Objects.isNull(o) && this.getClass() == o.getClass() &&
                 name.equals(((Entity) o).getName()) &&
-                (size == ((Entity) o).getSize())) {
+                (size == ((Entity) o).size())) {
             int index = 0;
             for (Account account : this) {
                 if (!Objects.isNull(account)) {
@@ -337,7 +318,7 @@ public class Entity implements Client {
         ((Entity) result).tail.next = ((Entity) result).head;
         ((Entity) result).size = 0;
 
-        Account[] accounts = getAccounts();
+        Account[] accounts = this.toArray();
 
         for (Account account : this) {
             ((Entity) result).addNode(new Node(account));
@@ -352,8 +333,183 @@ public class Entity implements Client {
     }
 
     @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        Objects.requireNonNull(o, "object is null");
+
+        for (Account account : this) {
+            if (!Objects.isNull(account)) {
+                return account.equals(o);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean add(Account account) {
+        Objects.requireNonNull(account, "account is null");
+        return addNode(new Node(account));
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        Objects.requireNonNull(o, "object is null");
+
+        Node current = head.next;
+
+        int index = 0;
+        for (Account buffer : this) {
+            if (!Objects.isNull(buffer)) {
+                if (buffer.equals(o)) {
+                    remove(index);
+                    return true;
+                }
+            }
+            index++;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        boolean result = false;
+        for (Object o : c) {
+            for (Account account : this) {
+                if (Objects.isNull(account)) {
+                    if (Objects.isNull(o)) {
+                        result = true;
+                    }
+                } else if (account.equals(o)) {
+                    result = true;
+                    break;
+                }
+            }
+
+            if (!result) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Account> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        for (Account account : c) {
+            addNode(new Node(account));
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        int index;
+        boolean result = false;
+        for (Object o : c) {
+            index = 0;
+            for (Account account : this) {
+                if (Objects.isNull(account)) {
+                    if (Objects.isNull(o)) {
+                        deleteNode(index);
+                        result = true;
+                        break;
+                    }
+                } else if (account.equals(o)) {
+                    deleteNode(index);
+                    result = true;
+                    break;
+                }
+                index++;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        boolean result = false;
+
+        int index = 0;
+        boolean isEquals;
+        boolean isChanged;
+        for (Account account : this) {
+            isEquals = false;
+            isChanged = false;
+            for (Object o : c) {
+                if (Objects.isNull(account)) {
+                    if (Objects.isNull(o)) {
+                        isEquals = true;
+                        break;
+                    }
+                } else if (account.equals(o)) {
+                    isEquals = true;
+                    break;
+                } else {
+                    isChanged = true;
+                }
+            }
+
+            if (isEquals) {
+                index++;
+            } else if (isChanged) {
+                deleteNode(index);
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void clear() {
+        while (!isEmpty()) {
+            deleteNode(0);
+        }
+    }
+
+    @Override
     public Iterator<Account> iterator() {
         return new AccountIterator();
+    }
+
+    private class AccountIterator implements Iterator<Account> {
+        private int index = 0;
+        Node current = head.next;
+
+        @Override
+        public boolean hasNext() {
+            return index < size();
+        }
+
+        @Override
+        public Account next() {
+            if (hasNext()) {
+                Account result;
+                result = current.value;
+                current = current.next;
+                index++;
+                return result;
+            } else {
+                throw new NoSuchElementException("Iterator not found element in Individual");
+            }
+        }
     }
 
 
@@ -367,24 +523,6 @@ public class Entity implements Client {
 
         public Node(Account value) {
             this.value = value;
-        }
-    }
-
-    private class AccountIterator implements Iterator<Account> {
-        private int current = 0;
-
-        @Override
-        public boolean hasNext() {
-            return current < getSize();
-        }
-
-        @Override
-        public Account next() {
-            if (hasNext()) {
-                return get(current++);
-            } else {
-                throw new NoSuchElementException("Iterator not found element in Individual");
-            }
         }
     }
 }

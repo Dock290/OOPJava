@@ -1,8 +1,6 @@
 package po83.kirgizov.oop.model;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Individual implements Client {
@@ -44,26 +42,138 @@ public class Individual implements Client {
         creditScore = 0;
     }
 
+    @Override
+    public boolean remove(Object o) {
+        Objects.requireNonNull(o, "object is null");
 
-    public boolean add(Account account) throws DuplicateAccountNumberException {
-        Objects.requireNonNull(account, "account is null");
-
-        if (isNumberMatchFound(account.getNumber())) {
-            throw new DuplicateAccountNumberException("account number " + account.getNumber() + " already exists");
+        for (int i = 0; i < size(); ++i)
+        {
+            if (!Objects.isNull(accounts[i])) {
+                if (accounts[i].equals(o)) {
+                    System.arraycopy(accounts, i + 1, accounts, i, size() - i - 1);
+                    accounts[size() - i - 1] = null;
+                    return true;
+                }
+            }
         }
+
+        return false;
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        boolean result = false;
+        for (Object o : c) {
+            for (Account account : this) {
+                if (Objects.isNull(account)) {
+                    if (Objects.isNull(o)) {
+                        result = true;
+                    }
+                } else if (account.equals(o)) {
+                    result = true;
+                    break;
+                }
+            }
+
+            if (!result) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Account> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        for (Account account : c) {
+            for (int i = 0; i < size; i++) {
+                if (Objects.isNull(accounts[i])) {
+                    accounts[i] = account;
+                    break;
+                }
+
+                if (i == size - 1) {
+                    Account[] newAccounts = new Account[size * 2];
+                    System.arraycopy(accounts, 0, newAccounts, 0, size);
+                    accounts = newAccounts;
+                    size *= 2;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        int index;
+        boolean result = false;
+        for (Object o : c) {
+            index = 0;
+            for (int i = 0; i < size; i++) {
+                if (Objects.isNull(accounts[i])) {
+                    if (Objects.isNull(o)) {
+                        result = true;
+                        break;
+                    }
+                } else if (accounts[i].equals(o)) {
+                    System.arraycopy(accounts, i + 1, accounts, i, size() - i - 1);
+                    accounts[size() - i - 1] = null;
+                    result = true;
+                    break;
+                }
+                index++;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        Objects.requireNonNull(c, "collection is null");
+
+        boolean result = false;
 
         int index = 0;
-        for (Account buffer : this) {
-            if (Objects.isNull(buffer)) {
-                accounts[index] = account;
-                return true;
+        boolean isEquals;
+        boolean isChanged;
+        for (Account account : this) {
+            isEquals = false;
+            isChanged = false;
+            for (Object o : c) {
+                if (Objects.isNull(account)) {
+                    if (Objects.isNull(o)) {
+                        isEquals = true;
+                        break;
+                    }
+                } else if (account.equals(o)) {
+                    isEquals = true;
+                    break;
+                } else {
+                    isChanged = true;
+                }
             }
-            index++;
+
+            if (isEquals) {
+                index++;
+            } else if (isChanged) {
+                System.arraycopy(accounts, index + 1, accounts, index, size() - index - 1);
+                accounts[size() - index - 1] = null;
+                result = true;
+            }
         }
+        return result;
+    }
 
-        doubleAccountsArraySize();
-
-        return add(account);
+    @Override
+    public void clear() {
+        for (int i = 0; i < size; ++i) {
+            accounts[i] = null;
+        }
     }
 
     public boolean add(int index, Account account) throws DuplicateAccountNumberException {
@@ -180,28 +290,6 @@ public class Individual implements Client {
         throw new NoSuchElementException("account with number " + accountNumber + " not found");
     }
 
-    @Override
-    public boolean remove(Account account) {
-        Objects.requireNonNull(account, "account is null");
-
-        int index = 0;
-        for (Account buffer : this) {
-            if (!Objects.isNull(buffer)) {
-                if (buffer.equals(account)) {
-                    remove(index);
-                    return true;
-                }
-            }
-            index++;
-        }
-
-        return false;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
     public void setName(String name) {
         Objects.requireNonNull(name, "name is null");
 
@@ -267,9 +355,9 @@ public class Individual implements Client {
 
     @Override
     public boolean equals(Object o) {
-        if ((getClass() == o.getClass()) &&
+        if (!Objects.isNull(o) && getClass() == o.getClass() &&
                 name.equals(((Individual) o).getName()) &&
-                (size == ((Individual) o).getSize())) {
+                (size == ((Individual) o).size())) {
             int index = 0;
             for (Account account : this) {
                 if (!Objects.isNull(account)) {
@@ -311,23 +399,65 @@ public class Individual implements Client {
     }
 
     @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        for (Account account : this) {
+            if (!Objects.isNull(account)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        Objects.requireNonNull(o, "object is null");
+
+        for (Account account : this) {
+            if (!Objects.isNull(account)) {
+                return account.equals(o);
+            }
+        }
+        return false;
+    }
+
+    @Override
     public Iterator<Account> iterator() {
         return new AccountIterator();
     }
 
-    private class AccountIterator implements Iterator<Account> {
+    @Override
+    public boolean add(Account account) {
+        Objects.requireNonNull(account, "account is null");
 
-        private int current = 0;
+        int index = 0;
+        for (Account buffer : this) {
+            if (Objects.isNull(buffer)) {
+                accounts[index] = account;
+                return true;
+            }
+            index++;
+        }
+        doubleAccountsArraySize();
+        return add(account);
+    }
+
+    private class AccountIterator implements Iterator<Account> {
+        private int index = 0;
 
         @Override
         public boolean hasNext() {
-            return current < getSize();
+            return index < size();
         }
 
         @Override
         public Account next() {
             if (hasNext()) {
-                return get(current++);
+                return get(index++);
             } else {
                 throw new NoSuchElementException("Iterator not found element in Individual");
             }
